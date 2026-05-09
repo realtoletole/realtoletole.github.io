@@ -324,9 +324,11 @@
     .code-tabs {
       display: flex;
       gap: 0.1rem;
-      flex-wrap: wrap;
       border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
     }
+    .code-tabs::-webkit-scrollbar { display: none; }
 
     .code-tab {
       background: transparent;
@@ -640,11 +642,10 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-inner">
-    <div class="hero-badge">Available for hire</div>
+    <div class="hero-badge">Open to all work · Fast replies</div>
     <h1>Hi, I'm <span class="accent">Rami</span>. I script for Roblox.</h1>
     <p class="hero-sub">
-      Seven years writing Luau. I work on hitboxes, combat, data, and
-      backend services.
+      Seven years writing Luau. Hitboxes, combat systems, data, networking, and backend services.
     </p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="#contact">Get in touch</a>
@@ -661,13 +662,13 @@
     <div class="about-grid">
       <div class="about-text">
         <p>
-          I'm <strong>Rami</strong>. Seven years writing Luau, mostly on combat-heavy games.
+          I'm <strong>Rami</strong>. Seven years writing Luau, mostly building combat systems and backend infrastructure as personal projects.
         </p>
         <p>
           I write clean, strict-typed code. Small modules, clear APIs, things that don't break when someone else touches them.
         </p>
         <p>
-          I cover the full stack: hitboxes, combat, data, networking, and backend services.
+          I cover the full stack: hitboxes, combat, data, networking, and backend services. Open to any kind of work.
         </p>
         <div class="about-tags">
           <span>--!strict</span>
@@ -694,8 +695,8 @@
           <div class="stat-label">Modular code</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">Solo</div>
-          <div class="stat-label">Full-stack</div>
+          <div class="stat-num">Open</div>
+          <div class="stat-label">All work types</div>
         </div>
       </div>
     </div>
@@ -767,6 +768,9 @@
       <button class="code-tab" data-tab="3">SnapshotRewinder</button>
       <button class="code-tab" data-tab="4">DeferredEffectQueue</button>
       <button class="code-tab" data-tab="5">AnimProxy</button>
+      <button class="code-tab" data-tab="6">SessionManager</button>
+      <button class="code-tab" data-tab="7">RateLimiter</button>
+      <button class="code-tab" data-tab="8">ServiceLoader</button>
     </div>
 
     <div class="code-panels">
@@ -1124,6 +1128,248 @@ end
 -- ctx.anims.AttackPose:Stop(0.2)        -- stand modules never know the difference</code></pre>
       </div>
 
+      <div class="code-panel" data-panel="6">
+        <p class="code-desc">
+          <strong>SessionManager: DataStore with MemoryStore session locking.</strong>
+          Prevents data corruption when a player crashes and rejoins before the old server
+          releases their slot. Retry uses exponential backoff so callers never handle
+          DataStore errors directly. Auto-saves on interval and on leave;
+          <code>game:BindToClose</code> ensures a clean shutdown flush.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">SessionManager.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+local DataStoreService   = game:GetService("DataStoreService")
+local MemoryStoreService = game:GetService("MemoryStoreService")
+local RunService         = game:GetService("RunService")
+local Players            = game:GetService("Players")
+
+local SAVE_INTERVAL = 60
+local LOCK_TTL      = 35    -- slightly &gt; SAVE_INTERVAL so lock never expires mid-save
+local RETRY_MAX     = 5
+
+local dataStore = DataStoreService:GetDataStore("PlayerData_v1")
+local lockMap   = MemoryStoreService:GetSortedMap("SessionLocks")
+
+type Profile = { data: { [string]: any }, dirty: boolean }
+local profiles : { [Player]: Profile } = {}
+
+-- Exponential backoff retry. Callers never branch on DataStore errors.
+local function retry(fn: () -&gt; ()): boolean
+    for i = 1, RETRY_MAX do
+        local ok, err = pcall(fn)
+        if ok then return true end
+        if i &lt; RETRY_MAX then task.wait(1.5 ^ i) end
+        warn(("[Session] attempt %d failed: %s"):format(i, tostring(err)))
+    end
+    return false
+end
+
+-- Acquire lock or kick. Lock value = JobId so other servers can detect it.
+local function acquireLock(userId: number): boolean
+    local key = tostring(userId)
+    local ok  = pcall(lockMap.SetAsync, lockMap, key, RunService.JobId, LOCK_TTL)
+    if not ok then return false end
+    return lockMap:GetAsync(key) == RunService.JobId
+end
+
+local SessionManager = {}
+
+function SessionManager.load(player: Player)
+    if not acquireLock(player.UserId) then
+        player:Kick("Already logged in on another server. Please wait 30 seconds.")
+        return
+    end
+    local ok, result = pcall(dataStore.GetAsync, dataStore, tostring(player.UserId))
+    if not ok then
+        pcall(lockMap.RemoveAsync, lockMap, tostring(player.UserId))
+        player:Kick("Data failed to load. Please rejoin.")
+        return
+    end
+    profiles[player] = { data = result or {}, dirty = false }
+end
+
+function SessionManager.save(player: Player)
+    local p = profiles[player]
+    if not p then return end
+    retry(function()
+        dataStore:SetAsync(tostring(player.UserId), p.data)
+    end)
+    p.dirty = false
+end
+
+function SessionManager.get(player: Player): { [string]: any }?
+    local p = profiles[player]
+    return p and p.data or nil
+end
+
+function SessionManager.unload(player: Player)
+    SessionManager.save(player)
+    pcall(lockMap.RemoveAsync, lockMap, tostring(player.UserId))
+    profiles[player] = nil
+end
+
+-- Auto-save loop; also renews session lock as a side effect.
+task.spawn(function()
+    while true do
+        task.wait(SAVE_INTERVAL)
+        for player in profiles do
+            task.spawn(SessionManager.save, player)
+        end
+    end
+end)
+
+Players.PlayerRemoving:Connect(SessionManager.unload)
+game:BindToClose(function()
+    for player in profiles do SessionManager.unload(player) end
+end)
+
+return table.freeze(SessionManager)</code></pre>
+      </div>
+
+      <div class="code-panel" data-panel="7">
+        <p class="code-desc">
+          <strong>RateLimiter: token-bucket per-player request throttling.</strong>
+          Each player has a bucket that refills at <code>rate</code> tokens/second up to
+          a <code>burst</code> cap. Checks are O(1) — no per-tick loop. Tokens are
+          computed lazily on each call using elapsed time, so the limiter has zero
+          overhead when idle. Expensive operations pass a higher <code>cost</code>
+          to drain the bucket faster.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">RateLimiter.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,7)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+local RateLimiter = {}
+RateLimiter.__index = RateLimiter
+
+type Bucket = { tokens: number, lastRefill: number }
+type Self   = { rate: number, burst: number, buckets: { [Player]: Bucket } }
+export type Limiter = typeof(setmetatable({} :: Self, RateLimiter))
+
+function RateLimiter.new(rate: number, burst: number): Limiter
+    return setmetatable({ rate = rate, burst = burst, buckets = {} }, RateLimiter) :: any
+end
+
+-- Lazy refill: tokens accumulate based on elapsed wall time, not a heartbeat.
+local function refill(bucket: Bucket, rate: number, burst: number)
+    local now          = os.clock()
+    local elapsed      = now - bucket.lastRefill
+    bucket.tokens      = math.min(burst, bucket.tokens + elapsed * rate)
+    bucket.lastRefill  = now
+end
+
+-- Returns true if the request is allowed. cost defaults to 1.
+function RateLimiter.check(self: Limiter, player: Player, cost: number?): boolean
+    local c = cost or 1
+    local bucket = self.buckets[player]
+    if not bucket then
+        bucket = { tokens = self.burst, lastRefill = os.clock() }
+        self.buckets[player] = bucket
+    end
+    refill(bucket, self.rate, self.burst)
+    if bucket.tokens &lt; c then return false end
+    bucket.tokens -= c
+    return true
+end
+
+function RateLimiter.remove(self: Limiter, player: Player)
+    self.buckets[player] = nil
+end
+
+return RateLimiter
+
+-- Usage — 5 requests/s, burst of 15, expensive ops cost 3:
+-- local limiter = RateLimiter.new(5, 15)
+-- remote.OnServerEvent:Connect(function(player, kind, ...)
+--     local cost = if kind == "BigOp" then 3 else 1
+--     if not limiter:check(player, cost) then return end
+--     handleRequest(player, kind, ...)
+-- end)</code></pre>
+      </div>
+
+      <div class="code-panel" data-panel="8">
+        <p class="code-desc">
+          <strong>ServiceLoader: dependency-ordered service bootstrap.</strong>
+          Services declare their dependencies by name; the loader topologically sorts
+          them and calls <code>:init()</code> then <code>:start()</code> in safe order.
+          A failed service warns rather than crashing the boot sequence, so one broken
+          module can't take down the game. Duplicate dependency declarations are
+          automatically deduplicated by the visited set.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">ServiceLoader.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,8)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+type Service = {
+    Name         : string,
+    Dependencies : { string }?,
+    init         : ((any) -&gt; ())?,
+    start        : ((any) -&gt; ())?,
+}
+
+local registry : { [string]: Service } = {}
+local booted   = false
+
+local ServiceLoader = {}
+
+function ServiceLoader.register(service: Service)
+    assert(not booted,   "Cannot register after ServiceLoader.boot()")
+    assert(service.Name, "Service.Name is required")
+    registry[service.Name] = service
+end
+
+-- Topological sort via recursive DFS. visited deduplicates shared deps.
+local function toposort(): { Service }
+    local visited : { [string]: boolean } = {}
+    local result  : { Service } = {}
+    local function visit(name: string)
+        if visited[name] then return end
+        visited[name] = true
+        local svc = assert(registry[name], "Unknown service: " .. name)
+        for _, dep in svc.Dependencies or {} do visit(dep) end
+        table.insert(result, svc)
+    end
+    for name in registry do visit(name) end
+    return result
+end
+
+function ServiceLoader.boot()
+    assert(not booted, "ServiceLoader.boot() called twice")
+    booted = true
+    local order = toposort()
+    -- Two-phase boot: all :init() complete before any :start() runs.
+    for _, phase in { "init", "start" } do
+        for _, svc in order do
+            local fn = (svc :: any)[phase]
+            if fn then
+                local ok, err = pcall(fn, svc)
+                if not ok then
+                    warn(("[ServiceLoader] %s:%s() failed: %s"):format(
+                        svc.Name, phase, tostring(err)
+                    ))
+                end
+            end
+        end
+    end
+end
+
+return ServiceLoader</code></pre>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1135,7 +1381,7 @@ end
       <p class="section-label">Contact</p>
       <h2 class="section-title">Get in touch.</h2>
       <p>
-        Discord or Roblox. I usually reply within a day.
+        Discord or Roblox. Usually reply within a few hours, always within 24. Open to contract, rev share, or per-project work.
       </p>
       <div class="contact-links">
         <a class="btn btn-primary" href="https://discord.com/users/mrrami56" target="_blank" rel="noopener">
