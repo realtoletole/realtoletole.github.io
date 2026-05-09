@@ -777,11 +777,8 @@
 
       <div class="code-panel active" data-panel="0">
         <p class="code-desc">
-          <strong>ToleHitbox: Bézier path movement and cone filter.</strong> Cubic and
-          quadratic Bézier evaluation share a single update site via Luau's
-          <code>if-then-else</code> expression. The cone filter is a single dot product
-          against the origin's forward axis, with the threshold precomputed from a
-          half-angle in degrees so runtime checks are one cosine compare.
+          Hitbox that moves along a Bézier path with an optional cone filter.
+          Cubic and quadratic share one update function. The cone check is just a dot product — no sqrt.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">ToleHitbox.lua</span>
@@ -790,7 +787,7 @@
             <span class="copy-label">Copy</span>
           </button>
         </div>
-        <pre class="code-block"><code class="language-lua">-- ToleHitbox: cubic / quadratic Bézier path evaluation.
+        <pre class="code-block"><code class="language-lua">-- cubic / quadratic Bézier, both arities in one function
 local function cubicBezier(p0, p1, p2, p3, t)
     local u = 1 - t; local tt = t * t; local uu = u * u
     return (uu * u)     * p0
@@ -799,8 +796,7 @@ local function cubicBezier(p0, p1, p2, p3, t)
          + (tt * t)     * p3
 end
 
--- Both arities collapse into one update call site. task.defer schedules
--- the destruction off the current tick so the final hit still resolves.
+-- task.defer so the final hit resolves before the hitbox cleans up
 function Hitbox:_updateBezier(dt)
     self.BezierElapsed = math.min(self.BezierElapsed + dt, self.BezierDuration)
     local t    = self.BezierElapsed / self.BezierDuration
@@ -812,10 +808,7 @@ function Hitbox:_updateBezier(dt)
     return CFrame.new(pos)
 end
 
--- Cone filter: dot of forward axis vs unit-vector to target.
--- ConeAngle is the half-angle in degrees (45 = 90° forward arc).
--- math.cos(rad) collapses the threshold into a single scalar so the
--- per-target check is one Dot and one compare — no sqrt, no acos.
+-- half-angle in degrees, one dot product per target
 function Hitbox:_passesCone(pos)
     if not self.ConeAngle or not self.ConeOrigin then return true end
     local cf        = self.ConeOrigin.CFrame
@@ -827,10 +820,8 @@ end</code></pre>
 
       <div class="code-panel" data-panel="1">
         <p class="code-desc">
-          <strong>ToleHitbox: client dispatch routing.</strong> The hitbox network packet
-          carries a string mode tag. Instead of a long <code>if/elseif</code> ladder, the
-          mode is a key into a dispatch table; adding a new packet type is one entry
-          rather than one branch. Unknown modes warn instead of silently no-op'ing.
+          Client-side packet routing via a dispatch table instead of an if/elseif chain.
+          Adding a new packet type is one line. Unknown modes warn so nothing breaks silently.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">ToleHitboxLocal.lua</span>
@@ -875,10 +866,8 @@ end)</code></pre>
 
       <div class="code-panel" data-panel="2">
         <p class="code-desc">
-          <strong>SpatialHashGrid.</strong> O(1) average-case AOE and nearest-neighbour
-          queries on hundreds of NPCs. Cells keyed by an integer hash. Update path skips
-          work when the entity hasn't crossed a cell boundary; queries narrow by squared
-          distance to avoid a sqrt per candidate.
+          Spatial hash grid for fast AOE queries. Skips the remove/insert when an entity
+          stays in the same cell. Squared distance check so no sqrt per candidate.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">SpatialHashGrid.lua</span>
@@ -900,14 +889,12 @@ type SelfFields = {
 }
 export type Grid = typeof(setmetatable({} :: SelfFields, SpatialHashGrid))
 
--- Famous primes used for spatial hashing (Teschner et al. 2003).
+-- primes for spatial hashing (Teschner et al. 2003)
 local function hash(cx : number, cz : number) : number
     return cx * 73856093 + cz * 19349663
 end
 
--- Cheap path: if the entity hasn't crossed a cell boundary, just patch
--- the stored position. Avoids a remove + insert round-trip in the
--- common case where movement is small relative to cellSize.
+-- skip remove/insert if entity stayed in the same cell
 function SpatialHashGrid.update(self : Grid, entity : Entity, pos : Vector3)
     local oldPos = self.entityPos[entity]
     if not oldPos then return self:insert(entity, pos) end
@@ -921,8 +908,7 @@ function SpatialHashGrid.update(self : Grid, entity : Entity, pos : Vector3)
     self:remove(entity); self:insert(entity, pos)
 end
 
--- Iterate only the cells the query disc could touch, then narrow by
--- squared distance — skips a sqrt per candidate.
+-- squared distance, no sqrt per candidate
 function SpatialHashGrid.queryRadius(
     self : Grid, center : Vector3, radius : number
 ) : { Entity }
@@ -952,10 +938,8 @@ return SpatialHashGrid</code></pre>
 
       <div class="code-panel" data-panel="3">
         <p class="code-desc">
-          <strong>SnapshotRewinder.</strong> Records each character's position 20 times a
-          second so the server can check what the attacker actually saw at fire-time.
-          Bounded at 300&nbsp;ms so a malicious client can't request rewinds arbitrarily
-          far back. Strict-typed, ring-buffered for constant memory.
+          Records character positions at 20Hz so the server can rewind to what the
+          attacker saw at fire-time. Capped at 300ms — clients can't request older snapshots.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">SnapshotRewinder.lua</span>
@@ -974,8 +958,7 @@ type History = { head: number, capacity: number, snapshots: { Snapshot } }
 local SnapshotRewinder = {}
 local histories : { [Model]: History } = {}
 
--- Returns char's CFrame at clock time `t`, interpolated between the two
--- bracketing snapshots. nil if older than MAX_REWIND.
+-- interpolates between bracketing snapshots, nil if too old
 function SnapshotRewinder.cframeAt(char : Model, t : number) : CFrame?
     local hist = histories[char]
     if not hist then return nil end
@@ -997,8 +980,7 @@ function SnapshotRewinder.cframeAt(char : Model, t : number) : CFrame?
     return (before and before.cf) or (after and after.cf)
 end
 
--- Validates an attacker's reported aim. (true, rewoundCFrame) if seenPos
--- is within `tolerance` studs of where target really was at clock time t.
+-- true if seenPos is within tolerance of where the target actually was
 function SnapshotRewinder.verify(
     target : Model, t : number, seenPos : Vector3, tolerance : number
 ) : (boolean, CFrame?)
@@ -1012,12 +994,9 @@ return table.freeze(SnapshotRewinder)</code></pre>
 
       <div class="code-panel" data-panel="4">
         <p class="code-desc">
-          <strong>DeferredEffectQueue.</strong> Generic, type-parameterised effect queue
-          gated by a state predicate. While <code>isFrozen()</code> returns true, effects
-          are queued; <code>flush()</code> drains them in FIFO order. Built for time-stop
-          combat in a JoJo project: hits land mid-stop but only resolve when time
-          resumes. Replaces ad-hoc <code>if frozen then queue else apply</code> branches
-          scattered through combat code.
+          Effect queue gated by a predicate — built for time-stop combat where hits
+          register mid-stop but apply when time resumes. <code>flush()</code> snapshots
+          before draining so re-entrant pushes go to a fresh queue.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">DeferredEffectQueue.lua</span>
@@ -1047,7 +1026,6 @@ function DeferredEffectQueue.new&lt;T&gt;(
     }, DeferredEffectQueue) :: any
 end
 
--- Single entry point: callers never branch on "are we frozen?" themselves.
 function DeferredEffectQueue.push&lt;T&gt;(self : Queue&lt;T&gt;, effect : T)
     if self.isFrozen() then
         table.insert(self.queue, effect)
@@ -1056,8 +1034,7 @@ function DeferredEffectQueue.push&lt;T&gt;(self : Queue&lt;T&gt;, effect : T)
     end
 end
 
--- Drain in FIFO order. Snapshots first so a re-entrant push() during
--- apply starts a fresh queue rather than mutating the one we're draining.
+-- snapshot before draining so re-entrant pushes go to a fresh queue
 function DeferredEffectQueue.flush&lt;T&gt;(self : Queue&lt;T&gt;) : number
     if #self.queue == 0 then return 0 end
     local snapshot = self.queue
@@ -1076,12 +1053,9 @@ return DeferredEffectQueue</code></pre>
 
       <div class="code-panel" data-panel="5">
         <p class="code-desc">
-          <strong>StandManager: server-side AnimationTrack proxies.</strong> The server
-          never loads AnimationTracks. Stand modules call
-          <code>ctx.anims.RightPunch:Play()</code> / <code>:Stop()</code> and these
-          proxies translate those calls into typed RemoteEvent payloads transparently.
-          A lazy <code>__index</code> auto-creates a proxy on first read, so modules can
-          write any animation key with no setup.
+          Server-side animation proxy — the server never loads AnimationTracks.
+          Stand modules call <code>:Play()</code> / <code>:Stop()</code> like normal and
+          the proxy fires the RemoteEvent. Lazy <code>__index</code> means no setup per animation key.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">StandManager.lua</span>
@@ -1092,8 +1066,7 @@ return DeferredEffectQueue</code></pre>
         </div>
         <pre class="code-block"><code class="language-lua">local AnimProxy = {}; AnimProxy.__index = AnimProxy
 
--- Lazy table: any animation key auto-creates a proxy on first read,
--- so stand modules can write `ctx.anims.AnyKey:Play()` with no setup.
+-- auto-creates proxy on first read, no setup needed per key
 local AnimTable = {}
 AnimTable.__index = function(t, key : string)
     local proxy = setmetatable(
@@ -1124,17 +1097,15 @@ local function makeAnimTable(player : Player)
     return setmetatable({ _player = player }, AnimTable)
 end
 
--- ctx.anims.RightPunch:Play(0.1, 1, 1)  -- looks like a real AnimationTrack
--- ctx.anims.AttackPose:Stop(0.2)        -- stand modules never know the difference</code></pre>
+-- ctx.anims.RightPunch:Play(0.1)  -- fires RemoteEvent under the hood
+-- ctx.anims.AttackPose:Stop(0.2)</code></pre>
       </div>
 
       <div class="code-panel" data-panel="6">
         <p class="code-desc">
-          <strong>SessionManager: DataStore with MemoryStore session locking.</strong>
-          Prevents data corruption when a player crashes and rejoins before the old server
-          releases their slot. Retry uses exponential backoff so callers never handle
-          DataStore errors directly. Auto-saves on interval and on leave;
-          <code>game:BindToClose</code> ensures a clean shutdown flush.
+          DataStore wrapper with MemoryStore session locking. Handles crash-rejoin safely,
+          retries with exponential backoff, and auto-saves on an interval.
+          <code>game:BindToClose</code> flushes everything on shutdown.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">SessionManager.lua</span>
@@ -1159,7 +1130,7 @@ local lockMap   = MemoryStoreService:GetSortedMap("SessionLocks")
 type Profile = { data: { [string]: any }, dirty: boolean }
 local profiles : { [Player]: Profile } = {}
 
--- Exponential backoff retry. Callers never branch on DataStore errors.
+-- exponential backoff, callers don't touch DataStore errors
 local function retry(fn: () -&gt; ()): boolean
     for i = 1, RETRY_MAX do
         local ok, err = pcall(fn)
@@ -1170,7 +1141,7 @@ local function retry(fn: () -&gt; ()): boolean
     return false
 end
 
--- Acquire lock or kick. Lock value = JobId so other servers can detect it.
+-- lock value = JobId so other servers know who holds it
 local function acquireLock(userId: number): boolean
     local key = tostring(userId)
     local ok  = pcall(lockMap.SetAsync, lockMap, key, RunService.JobId, LOCK_TTL)
@@ -1214,7 +1185,7 @@ function SessionManager.unload(player: Player)
     profiles[player] = nil
 end
 
--- Auto-save loop; also renews session lock as a side effect.
+-- auto-save; lock TTL keeps renewing as a side effect
 task.spawn(function()
     while true do
         task.wait(SAVE_INTERVAL)
@@ -1234,12 +1205,8 @@ return table.freeze(SessionManager)</code></pre>
 
       <div class="code-panel" data-panel="7">
         <p class="code-desc">
-          <strong>RateLimiter: token-bucket per-player request throttling.</strong>
-          Each player has a bucket that refills at <code>rate</code> tokens/second up to
-          a <code>burst</code> cap. Checks are O(1) — no per-tick loop. Tokens are
-          computed lazily on each call using elapsed time, so the limiter has zero
-          overhead when idle. Expensive operations pass a higher <code>cost</code>
-          to drain the bucket faster.
+          Token-bucket rate limiter per player. Refills lazily on each check — no heartbeat loop.
+          Pass a higher <code>cost</code> for expensive operations.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">RateLimiter.lua</span>
@@ -1260,7 +1227,7 @@ function RateLimiter.new(rate: number, burst: number): Limiter
     return setmetatable({ rate = rate, burst = burst, buckets = {} }, RateLimiter) :: any
 end
 
--- Lazy refill: tokens accumulate based on elapsed wall time, not a heartbeat.
+-- lazy refill, no per-tick loop
 local function refill(bucket: Bucket, rate: number, burst: number)
     local now          = os.clock()
     local elapsed      = now - bucket.lastRefill
@@ -1268,7 +1235,7 @@ local function refill(bucket: Bucket, rate: number, burst: number)
     bucket.lastRefill  = now
 end
 
--- Returns true if the request is allowed. cost defaults to 1.
+-- false if rate-limited, cost defaults to 1
 function RateLimiter.check(self: Limiter, player: Player, cost: number?): boolean
     local c = cost or 1
     local bucket = self.buckets[player]
@@ -1299,12 +1266,9 @@ return RateLimiter
 
       <div class="code-panel" data-panel="8">
         <p class="code-desc">
-          <strong>ServiceLoader: dependency-ordered service bootstrap.</strong>
-          Services declare their dependencies by name; the loader topologically sorts
-          them and calls <code>:init()</code> then <code>:start()</code> in safe order.
-          A failed service warns rather than crashing the boot sequence, so one broken
-          module can't take down the game. Duplicate dependency declarations are
-          automatically deduplicated by the visited set.
+          Sorts services by their declared dependencies and boots in order —
+          all <code>:init()</code> first, then all <code>:start()</code>.
+          One broken service warns instead of crashing everything.
         </p>
         <div class="code-file-bar">
           <span class="code-filename">ServiceLoader.lua</span>
@@ -1332,7 +1296,7 @@ function ServiceLoader.register(service: Service)
     registry[service.Name] = service
 end
 
--- Topological sort via recursive DFS. visited deduplicates shared deps.
+-- DFS toposort, visited set handles shared deps
 local function toposort(): { Service }
     local visited : { [string]: boolean } = {}
     local result  : { Service } = {}
@@ -1351,7 +1315,7 @@ function ServiceLoader.boot()
     assert(not booted, "ServiceLoader.boot() called twice")
     booted = true
     local order = toposort()
-    -- Two-phase boot: all :init() complete before any :start() runs.
+    -- all init() before any start()
     for _, phase in { "init", "start" } do
         for _, svc in order do
             local fn = (svc :: any)[phase]
