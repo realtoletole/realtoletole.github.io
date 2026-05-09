@@ -595,115 +595,148 @@
     <p class="section-desc">Real snippets from production Luau — no toy examples.</p>
 
     <div class="code-tabs">
-      <button class="code-tab active" data-tab="0">Bézier &amp; Cone Hitbox</button>
-      <button class="code-tab" data-tab="1">Directional Dash</button>
-      <button class="code-tab" data-tab="2">Service Boot Sequence</button>
+      <button class="code-tab active" data-tab="0">Beam Projection</button>
+      <button class="code-tab" data-tab="1">Spread Barrage (Blut Pfeil)</button>
+      <button class="code-tab" data-tab="2">Grab-Carry + Beam (Itto Kaso)</button>
     </div>
 
     <div class="code-panels">
 
       <div class="code-panel active" data-panel="0">
         <p class="code-desc">
-          From <strong>ToleHitbox</strong> — projectile path movement along cubic/quadratic Bézier curves,
-          with a dot-product cone filter that rejects hits outside the forward arc.
-          Both live in the same heartbeat loop with no extra connections.
+          From <strong>SkillModule._ActivateBeam</strong> — cylindrical volume detection
+          powering Cero, Gran Rey Cero, and Letzt Stil. Rather than checking distance to
+          the origin, the target's offset is projected onto the beam axis and perpendicular
+          distance is measured from that projection — a true cylinder, no sphere approximation.
         </p>
-        <pre class="code-block"><code class="language-lua">local function cubicBezier(p0, p1, p2, p3, t)
-	local u = 1 - t; local tt = t * t; local uu = u * u
-	return (uu * u) * p0 + (3 * uu * t) * p1
-	     + (3 * u * tt) * p2 + (tt * t) * p3
-end
+        <pre class="code-block"><code class="language-lua">-- Cylindrical beam volume — used by Cero, Gran Rey Cero, Letzt Stil
+-- Projects each target onto the beam axis; rejects if perpendicular
+-- distance exceeds BeamRadius or projection falls outside [0, BeamLength].
+function SkillCombat:_ActivateBeam()
+    local root      = self.Character.HumanoidRootPart
+    local origin    = root.Position
+    local direction = root.CFrame.LookVector  -- already a unit vector
 
-function Hitbox:_updateBezier(dt)
-	self.BezierElapsed = math.min(self.BezierElapsed + dt, self.BezierDuration)
-	local t    = self.BezierElapsed / self.BezierDuration
-	local path = self.BezierPath
-	local pos  = #path == 4
-		and cubicBezier(path[1], path[2], path[3], path[4], t)
-		or  quadraticBezier(path[1], path[2], path[3], t)
-	if t >= 1 then task.defer(self.Destroy, self) end
-	return CFrame.new(pos)
-end
+    for _, target in self:_getTargets() do
+        local targetRoot = target:FindFirstChild("HumanoidRootPart")
+        if not targetRoot then continue end
 
--- ConeAngle is the half-angle in degrees (45 = 90° forward cone)
-function Hitbox:_passesCone(pos)
-	if not self.ConeAngle or not self.ConeOrigin then return true end
-	local cf        = self.ConeOrigin.CFrame
-	local toTarget  = (pos - cf.Position).Unit
-	local threshold = math.cos(math.rad(self.ConeAngle))
-	return cf.LookVector:Dot(toTarget) >= threshold
+        local toTarget = targetRoot.Position - origin
+
+        -- scalar: signed distance along the beam axis
+        local projLength = toTarget:Dot(direction)
+        -- subtract the along-axis component; remainder is the perpendicular offset
+        local perpDist   = (toTarget - direction * projLength).Magnitude
+
+        if  perpDist   &lt; self.BeamRadius   -- inside cylinder width
+        and projLength &gt; 0                 -- in front of the caster
+        and projLength &lt; self.BeamLength   -- before the beam tip
+        then
+            self:_applyHit(target)
+        end
+    end
 end</code></pre>
       </div>
 
       <div class="code-panel" data-panel="1">
         <p class="code-desc">
-          From <strong>CombatClient</strong> — 4-way directional dash using dot products against the
-          root's look and right vectors to pick the correct animation, with camera-relative
-          velocity tracking for side dashes each heartbeat.
+          From <strong>Skills/Quincy/Blut Pfeil</strong> — a 5-arrow spread barrage.
+          Each arrow's angle fans from centre using <code>(i − ceil(n/2)) × spread</code>.
+          One <code>alreadyHit</code> table is shared across the whole volley so no character
+          can be double-hit even when two arrows overlap on the same heartbeat frame.
+          Each arrow then owns two concurrent heartbeat connections: one to move it, one
+          for hit detection.
         </p>
-        <pre class="code-block"><code class="language-lua">local forward    = rootpart.CFrame.LookVector
-local right      = rootpart.CFrame.RightVector
-local forwardDot = forward:Dot(moveDirection)
-local rightDot   = right:Dot(moveDirection)
-local direction  = 0
+        <pre class="code-block"><code class="language-lua">local ARROW_COUNT  = 5
+local SPREAD_ANGLE = 12     -- degrees between each arrow
+local ARROW_DELAY  = 0.08   -- seconds staggered between each fire
 
-if     forwardDot >  0.7  then animation = animator:LoadAnimation(frontDashAnimation)
-elseif forwardDot &lt; -0.7  then animation = animator:LoadAnimation(backDashAnimation)
-elseif rightDot   >  0.6  then animation = animator:LoadAnimation(rightDashAnimation); direction =  90
-elseif rightDot   &lt; -0.7  then animation = animator:LoadAnimation(leftDashAnimation);  direction = -90
+-- One shared registry for the whole volley — prevents double-hits even
+-- when two arrows clip the same character on the same heartbeat frame.
+local alreadyHit = {}
+
+local baseDir = CFrame.new(spawnPos, spawnPos + char.HumanoidRootPart.CFrame.LookVector)
+
+for i = 1, ARROW_COUNT do
+    -- i=3 is centre; wings fan out: -24°, -12°, 0°, +12°, +24°
+    local spreadOffset = (i - math.ceil(ARROW_COUNT / 2)) * SPREAD_ANGLE
+    local fireDir      = CFrame.Angles(0, math.rad(spreadOffset), 0) * baseDir
+
+    fireArrow(char, spawnCFrame, fireDir, thrownFolder, alreadyHit)
+
+    if i &lt; ARROW_COUNT then task.wait(ARROW_DELAY) end
 end
 
-if animation then animation:Play() end
+-- Inside fireArrow: each arrow runs two heartbeat connections simultaneously
+local moveConn, hitConn
 
--- Side dashes: rotate velocity with camera each heartbeat
-if direction ~= 0 then
-	local conn
-	conn = RunService.Heartbeat:Connect(function()
-		if not lv.Parent then conn:Disconnect(); return end
-		local camLook = (camera.CFrame * CFrame.new(0, 0, 2)).Position
-		local baseCF  = CFrame.new(
-			Vector3.new(camera.CFrame.X, rootpart.Position.Y, camera.CFrame.Z),
-			Vector3.new(camLook.X,       rootpart.Position.Y, camLook.Z)
-		)
-		lv.Velocity = (baseCF * CFrame.Angles(0, math.rad(direction), 0)).LookVector * dashForce
-	end)
-	task.delay(dashDuration, conn.Disconnect, conn)
-end</code></pre>
+moveConn = RunService.Heartbeat:Connect(function(dt)
+    arrow.CFrame += fireDir.LookVector * ARROW_SPEED * dt
+    if (arrow.Position - spawnPos).Magnitude &gt; MAX_RANGE then
+        moveConn:Disconnect(); hitConn:Disconnect(); arrow:Destroy()
+    end
+end)
+
+hitConn = RunService.Heartbeat:Connect(function()
+    for _, target in ToleHitbox.InRadius(arrow.Position, HIT_RADIUS) do
+        if not alreadyHit[target] then
+            alreadyHit[target] = true
+            CM.Hit.Apply(target:FindFirstChildOfClass("Humanoid"), DAMAGE, ...)
+        end
+    end
+end)</code></pre>
       </div>
 
       <div class="code-panel" data-panel="2">
         <p class="code-desc">
-          From <strong>ServerInit</strong> — services load in strict dependency order so the data layer
-          always exists before combat or skills try to read player data.
-          Every require is pcall-guarded with a boot timer and failure count.
+          From <strong>Skills/Itto Kaso</strong> — a four-phase grab skill.
+          Phase 1: ToleHitbox Ball detects a target in melee range.
+          Phase 2: <code>AlignPosition</code> + <code>AlignOrientation</code> constraints
+          lock them to the caster during the dash carry.
+          Phase 3: a Heartbeat loop drains 30% of their MaxHP across evenly-spaced ticks.
+          Phase 4: constraints are destroyed and the target is ragdolled into a downward slam.
         </p>
-        <pre class="code-block"><code class="language-lua">local BOOT_START  = os.clock()
-local loadedCount, failedCount = 0, 0
+        <pre class="code-block"><code class="language-lua">-- Phase 1 — ToleHitbox Ball detects grab target in melee range
+skill:_ActivateGrab(function(target)
+    local targetRoot = target:FindFirstChild("HumanoidRootPart")
+    local targetHum  = target:FindFirstChildOfClass("Humanoid")
+    if not targetRoot or not targetHum then return end
 
-local function require_service(path, label)
-	local ok, result = pcall(require, path)
-	if ok then
-		loadedCount += 1
-		print(("[ServerInit] ✓ Loaded: %s"):format(label))
-		return result
-	end
-	warn(("[ServerInit] ✗ FAILED: %s — %s"):format(label, tostring(result)))
-	failedCount += 1
-	return nil
-end
+    -- Phase 2 — Align constraints carry the target with the caster
+    local alignPos           = Instance.new("AlignPosition")
+    alignPos.Attachment0     = targetRoot:FindFirstChildOfClass("Attachment")
+    alignPos.Attachment1     = carrierAttachment
+    alignPos.RigidityEnabled = true
+    alignPos.Parent          = targetRoot
 
-local Services = ServerStorage.Modules.Services
-require_service(Services.DataHandler,    "DataHandler")    -- 1. data first
-require_service(Services.PlayerService,  "PlayerService")  -- 2. player setup
-require_service(Services.CombatService,  "CombatService")  -- 3. combat
-require_service(Services.SkillService,   "SkillService")   -- 4. skills
-require_service(Services.VFXService,     "VFXService")     -- 5. effects
-require_service(Services.SoulGridService,"SoulGridService") -- 6. grid
-require_service(Services.MissionService, "MissionService") -- 7. missions
+    local alignOri           = Instance.new("AlignOrientation")
+    alignOri.Attachment0     = targetRoot:FindFirstChildOfClass("Attachment")
+    alignOri.Attachment1     = carrierAttachment
+    alignOri.RigidityEnabled = true
+    alignOri.Parent          = targetRoot
 
-local elapsed = ("%.3f"):format(os.clock() - BOOT_START)
-print(("[ServerInit] Boot complete in %ss — %d loaded, %d failed")
-	:format(elapsed, loadedCount, failedCount))</code></pre>
+    -- Phase 3 — Drain 30 % MaxHP across BEAM_HITS evenly-timed ticks
+    local damagePerHit       = (targetHum.MaxHealth * BEAM_DAMAGE_PERCENT) / BEAM_HITS
+    local accumulated, count = 0, 0
+    local beamConn
+
+    beamConn = RunService.Heartbeat:Connect(function(dt)
+        if count &gt;= BEAM_HITS then beamConn:Disconnect(); return end
+        accumulated += dt
+        if accumulated &gt;= hitRate then
+            accumulated -= hitRate
+            count       += 1
+            CM.Hit.Apply(targetHum, damagePerHit, 0.1, Vector3.zero, char, false)
+        end
+    end)
+
+    -- Phase 4 — Release: remove constraints, ragdoll, slam downward
+    task.delay(BEAM_DURATION, function()
+        alignPos:Destroy(); alignOri:Destroy()
+        CM.Ragdoll.Apply(target, SLAM_DURATION)
+        CM.Fling.Apply(target, char.HumanoidRootPart.CFrame.UpVector * -SLAM_FORCE)
+    end)
+end)</code></pre>
       </div>
 
     </div>
