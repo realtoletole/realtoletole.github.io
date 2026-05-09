@@ -384,6 +384,68 @@
       .skills-grid { grid-template-columns: 1fr; }
       #hero { padding: 7rem 1.2rem 5rem; }
     }
+
+    /* ── 3-COL SKILLS (wide screens) ── */
+    @media (min-width: 860px) {
+      .skills-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── REVEAL ON SCROLL ── */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    [data-reveal].visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── NAV SCROLL STATE ── */
+    nav.scrolled {
+      background: rgba(3, 5, 10, 0.9);
+      border-bottom-color: var(--border);
+    }
+
+    /* ── CODE FILE BAR ── */
+    .code-file-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10, 12, 20, 0.95);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      padding: 0.5rem 1rem;
+    }
+    .code-filename {
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.71rem;
+      font-weight: 500;
+      padding: 0.2rem 0.5rem;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,0.4); }
+    .copy-btn svg { width: 11px; height: 11px; }
+    .code-file-bar + .code-block {
+      border-top: none !important;
+      border-radius: 0 0 10px 10px !important;
+      margin-top: 0 !important;
+    }
   </style>
 </head>
 <body>
@@ -420,7 +482,7 @@
 
 <!-- ABOUT -->
 <section id="about">
-  <div class="container">
+  <div class="container" data-reveal>
     <p class="section-label">About</p>
     <h2 class="section-title">How I work.</h2>
     <div class="about-grid">
@@ -459,7 +521,7 @@
 
 <!-- SKILLS -->
 <section id="skills">
-  <div class="container">
+  <div class="container" data-reveal>
     <p class="section-label">Skills</p>
     <h2 class="section-title">What I build.</h2>
     <div class="skills-grid">
@@ -511,7 +573,7 @@
 
 <!-- CODE -->
 <section id="code">
-  <div class="container">
+  <div class="container" data-reveal>
     <p class="section-label">Code</p>
     <h2 class="section-title">Real production Luau.</h2>
 
@@ -534,6 +596,13 @@
           against the origin's forward axis, with the threshold precomputed from a
           half-angle in degrees so runtime checks are one cosine compare.
         </p>
+        <div class="code-file-bar">
+          <span class="code-filename">ToleHitbox.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,0)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
         <pre class="code-block"><code class="language-lua">-- ToleHitbox: cubic / quadratic Bézier path evaluation.
 local function cubicBezier(p0, p1, p2, p3, t)
     local u = 1 - t; local tt = t * t; local uu = u * u
@@ -576,6 +645,13 @@ end</code></pre>
           mode is a key into a dispatch table; adding a new packet type is one entry
           rather than one branch. Unknown modes warn instead of silently no-op'ing.
         </p>
+        <div class="code-file-bar">
+          <span class="code-filename">ToleHitboxLocal.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
         <pre class="code-block"><code class="language-lua">type Packet = { _Mode: string, _Tick: number, [string]: any }
 
 local active : { [number]: ToleHitbox.Hitbox } = {}
@@ -617,6 +693,13 @@ end)</code></pre>
           work when the entity hasn't crossed a cell boundary; queries narrow by squared
           distance to avoid a sqrt per candidate.
         </p>
+        <div class="code-file-bar">
+          <span class="code-filename">SpatialHashGrid.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local SpatialHashGrid = {}
 SpatialHashGrid.__index = SpatialHashGrid
@@ -687,6 +770,13 @@ return SpatialHashGrid</code></pre>
           Bounded at 300&nbsp;ms so a malicious client can't request rewinds arbitrarily
           far back. Strict-typed, ring-buffered for constant memory.
         </p>
+        <div class="code-file-bar">
+          <span class="code-filename">SnapshotRewinder.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local SNAPSHOT_HZ : number = 20
 local MAX_REWIND  : number = 0.300
@@ -742,6 +832,13 @@ return table.freeze(SnapshotRewinder)</code></pre>
           resumes. Replaces ad-hoc <code>if frozen then queue else apply</code> branches
           scattered through combat code.
         </p>
+        <div class="code-file-bar">
+          <span class="code-filename">DeferredEffectQueue.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,4)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local DeferredEffectQueue = {}
 DeferredEffectQueue.__index = DeferredEffectQueue
@@ -799,6 +896,13 @@ return DeferredEffectQueue</code></pre>
           A lazy <code>__index</code> auto-creates a proxy on first read, so modules can
           write any animation key with no setup.
         </p>
+        <div class="code-file-bar">
+          <span class="code-filename">StandManager.lua</span>
+          <button class="copy-btn" onclick="copyCode(this,5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
         <pre class="code-block"><code class="language-lua">local AnimProxy = {}; AnimProxy.__index = AnimProxy
 
 -- Lazy table: any animation key auto-creates a proxy on first read,
@@ -843,7 +947,7 @@ end
 
 <!-- CONTACT -->
 <section id="contact">
-  <div class="container">
+  <div class="container" data-reveal>
     <div class="contact-block">
       <p class="section-label">Contact</p>
       <h2 class="section-title">Get in touch.</h2>
@@ -882,6 +986,34 @@ end
       document.querySelector('[data-panel="' + tab.dataset.tab + '"]').classList.add('active');
     });
   });
+
+  // Scroll-reveal
+  const revealObserver = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.07 }
+  );
+  document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+  // Nav scroll state
+  const navEl = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    navEl.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // Copy buttons
+  function copyCode(btn, panelIndex) {
+    const panel = document.querySelector('[data-panel="' + panelIndex + '"]');
+    const code  = panel && panel.querySelector('code');
+    if (!code) return;
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.classList.add('copied');
+      btn.querySelector('.copy-label').textContent = 'Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.querySelector('.copy-label').textContent = 'Copy';
+      }, 1800);
+    });
+  }
 
   // Starfield
   (function () {
