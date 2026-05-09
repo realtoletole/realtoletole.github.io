@@ -408,8 +408,8 @@
     <div class="hero-badge">Available for hire</div>
     <h1>Hi, I'm <span class="accent">Rami</span>. I script for Roblox.</h1>
     <p class="hero-sub">
-      Seven years writing Luau. Hitboxes, combat, data, and the backend
-      services that hold it all together.
+      Seven years writing Luau. I work on hitboxes, combat, data, and
+      backend services.
     </p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="#contact">Get in touch</a>
@@ -422,19 +422,17 @@
 <section id="about">
   <div class="container">
     <p class="section-label">About</p>
-    <h2 class="section-title">Seven years, still shipping.</h2>
+    <h2 class="section-title">How I work.</h2>
     <div class="about-grid">
       <div class="about-text">
         <p>
-          I'm <strong>Rami</strong>. I've been scripting Roblox games for seven years.
+          I'm <strong>Rami</strong>. I've been scripting Roblox for seven years.
         </p>
         <p>
-          My focus is clean, typed code — small modules, simple APIs, and systems that
-          don't break under pressure.
+          I write clean, typed code. Small modules, simple APIs, things that don't break.
         </p>
         <p>
-          I work across the whole stack: hitboxes, combat, data, networking, and the
-          backend services that tie everything together.
+          I work across the stack. Hitboxes, combat, data, networking, backend services.
         </p>
       </div>
       <div class="stat-grid">
@@ -451,8 +449,8 @@
           <div class="stat-label">Modular code</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">∞</div>
-          <div class="stat-label">Coffee consumed</div>
+          <div class="stat-num">Solo</div>
+          <div class="stat-label">Full-stack</div>
         </div>
       </div>
     </div>
@@ -469,43 +467,42 @@
       <div class="skill-card">
         <span class="skill-num">01</span>
         <h3>Hitbox &amp; lag compensation</h3>
-        <p>Custom hitbox libraries with cone filtering, Bézier paths, and snapshot-based
-        rewind for fair server-side hit checks.</p>
+        <p>Custom hitbox libraries. Cone filtering, Bézier paths, snapshot-based
+        rewind for server-side hit checks.</p>
       </div>
 
       <div class="skill-card">
         <span class="skill-num">02</span>
         <h3>Combat systems</h3>
-        <p>M1 combos, dashes, parry, feint cancellation, and knockdown
-        carry mechanics — all server-validated.</p>
+        <p>M1 combos, dashes, parry, feint cancellation, knockdown
+        carry. All server-validated.</p>
       </div>
 
       <div class="skill-card">
         <span class="skill-num">03</span>
         <h3>OOP &amp; modules</h3>
-        <p>Metatable classes, dispatch tables, exported types, and shared signals
-        instead of manual connection bookkeeping.</p>
+        <p>Metatable classes, dispatch tables, exported types, shared signals.</p>
       </div>
 
       <div class="skill-card">
         <span class="skill-num">04</span>
         <h3>Backend &amp; data</h3>
-        <p>Session-safe DataStores, HttpService integrations, MessagingService for
-        cross-server sync, and MemoryStoreService for short-lived data.</p>
+        <p>DataStoreService, HttpService, MessagingService, MemoryStoreService.
+        Session-safe loads with retry.</p>
       </div>
 
       <div class="skill-card">
         <span class="skill-num">05</span>
         <h3>Networking</h3>
-        <p>RemoteEvents and RemoteFunctions with strict server validation, request
-        rate-limiting, and replication-aware patterns.</p>
+        <p>RemoteEvents and RemoteFunctions. Strict server validation, rate
+        limiting, sane replication.</p>
       </div>
 
       <div class="skill-card">
         <span class="skill-num">06</span>
         <h3>Core services</h3>
-        <p>RunService loops, Players lifecycle, CollectionService tagging,
-        TweenService, and ordered service boot with pcall guards.</p>
+        <p>RunService, Players, CollectionService, TweenService. Ordered service
+        boot with pcall guards.</p>
       </div>
 
     </div>
@@ -529,9 +526,8 @@
       <div class="code-panel active" data-panel="0">
         <p class="code-desc">
           <strong>Lag compensation.</strong> Records each character's position 20 times a
-          second and lets the server check what the attacker actually saw when they fired.
-          Capped at 300&nbsp;ms so nobody can rewind too far back. Strict-typed with a ring
-          buffer so memory stays constant.
+          second so the server can check what the attacker actually saw at fire-time.
+          Bounded at 300&nbsp;ms. Strict-typed, ring-buffered for constant memory.
         </p>
         <pre class="code-block"><code class="language-lua">--!strict
 local SNAPSHOT_HZ : number = 20
@@ -581,10 +577,9 @@ return table.freeze(SnapshotRewinder)</code></pre>
 
       <div class="code-panel" data-panel="1">
         <p class="code-desc">
-          <strong>Cancels in-flight attacks safely.</strong> Each attack gets a unique ID;
-          calling <code>Feint()</code> bumps that ID and any pending callback that still
-          holds the old ID becomes a no-op. No race conditions, no leftover hitboxes,
-          no stuck VFX.
+          <strong>Cancels in-flight attacks.</strong> Each attack gets a unique ID. Calling
+          <code>Feint()</code> bumps that ID, and any pending callback holding the old ID
+          becomes a no-op. No race conditions, no orphan hitboxes.
         </p>
         <pre class="code-block"><code class="language-lua">function FeintSystem.RegisterAttackStart(char, attackType, SkillName, attackData)
     -- Bump per-character counter; this id is what every async callback
@@ -640,9 +635,9 @@ end</code></pre>
 
       <div class="code-panel" data-panel="2">
         <p class="code-desc">
-          <strong>Carry mechanic for knocked players.</strong> Locks the victim to the carrier
-          with a Weld, makes their parts massless and non-colliding, plays paired animations
-          on both characters, and auto-releases if the carrier gets stunned mid-carry.
+          <strong>Carry mechanic for knocked players.</strong> Welds the victim to the carrier,
+          sets parts massless and non-colliding, plays paired animations, auto-releases if
+          the carrier gets stunned.
         </p>
         <pre class="code-block"><code class="language-lua">function KnockdownService.Carry(carrier, victim)
     if not KnockdownService.IsKnocked(victim) then return false end
@@ -707,9 +702,9 @@ end</code></pre>
   <div class="container">
     <div class="contact-block">
       <p class="section-label">Contact</p>
-      <h2 class="section-title">Let's build something.</h2>
+      <h2 class="section-title">Get in touch.</h2>
       <p>
-        Got a project? Need a scripter? Reach out — I respond fast.
+        Discord or Roblox. I usually reply within a day.
       </p>
       <div class="contact-links">
         <a class="btn btn-primary" href="https://discord.com/users/mrrami56" target="_blank" rel="noopener">
