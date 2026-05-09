@@ -321,37 +321,52 @@
     /* ── CODE ── */
     #code { border-top: 1px solid var(--border-soft); }
 
-    .code-tabs {
+    .code-nav {
       display: flex;
-      gap: 0.1rem;
+      align-items: center;
+      justify-content: space-between;
       border-bottom: 1px solid var(--border);
-      overflow-x: auto;
-      scrollbar-width: none;
+      padding: 0 0.1rem;
     }
-    .code-tabs::-webkit-scrollbar { display: none; }
-
-    .code-tab {
+    .code-nav-btn {
       background: transparent;
       border: none;
-      border-bottom: 1px solid transparent;
       color: var(--muted);
       cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 500;
-      padding: 0.6rem 0.9rem;
-      margin-bottom: -1px;
-      transition: color 0.15s, border-color 0.15s;
+      padding: 0.55rem 0.75rem;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+      border-radius: 6px;
     }
-    .code-tab:hover { color: var(--text); }
-    .code-tab.active {
+    .code-nav-btn:hover { color: var(--text); }
+    .code-nav-btn svg { width: 16px; height: 16px; }
+    .code-nav-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+    .code-nav-name {
+      font-size: 0.83rem;
+      font-weight: 500;
       color: var(--text);
-      border-bottom-color: var(--accent);
-      text-shadow: 0 0 14px rgba(101, 119, 232, 0.4);
+    }
+    .code-nav-counter {
+      font-size: 0.67rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
     }
 
     .code-panel { display: none; }
-    .code-panel.active { display: block; }
+    .code-panel.active {
+      display: block;
+      animation: panelIn 0.2s ease;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     .code-desc {
       color: var(--muted);
@@ -459,24 +474,6 @@
       font-size: 0.73rem;
       color: var(--muted);
     }
-    .copy-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      color: var(--muted);
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.71rem;
-      font-weight: 500;
-      padding: 0.2rem 0.5rem;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
-    .copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,0.4); }
-    .copy-btn svg { width: 11px; height: 11px; }
     .code-file-bar + .code-block {
       border-top: none !important;
       border-radius: 0 0 10px 10px !important;
@@ -742,16 +739,17 @@
     <p class="section-label">Code</p>
     <h2 class="section-title">Some of what I write.</h2>
 
-    <div class="code-tabs">
-      <button class="code-tab active" data-tab="0">Bezier hitbox</button>
-      <button class="code-tab" data-tab="1">Hitbox dispatch</button>
-      <button class="code-tab" data-tab="2">SpatialHashGrid</button>
-      <button class="code-tab" data-tab="3">SnapshotRewinder</button>
-      <button class="code-tab" data-tab="4">DeferredEffectQueue</button>
-      <button class="code-tab" data-tab="5">AnimProxy</button>
-      <button class="code-tab" data-tab="6">SessionManager</button>
-      <button class="code-tab" data-tab="7">RateLimiter</button>
-      <button class="code-tab" data-tab="8">ServiceLoader</button>
+    <div class="code-nav">
+      <button class="code-nav-btn" id="code-prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="code-nav-center">
+        <span class="code-nav-name" id="code-nav-name">Bezier hitbox</span>
+        <span class="code-nav-counter" id="code-nav-counter">1 / 11</span>
+      </div>
+      <button class="code-nav-btn" id="code-next" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
 
     <div class="code-panels">
@@ -763,10 +761,6 @@
         </p>
         <div class="code-file-bar">
           <span class="code-filename">ToleHitbox.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,0)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">-- cubic / quadratic Bézier, both arities in one function
 local function cubicBezier(p0, p1, p2, p3, t)
@@ -806,10 +800,6 @@ end</code></pre>
         </p>
         <div class="code-file-bar">
           <span class="code-filename">ToleHitboxLocal.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,1)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">type Packet = { _Mode: string, _Tick: number, [string]: any }
 
@@ -852,10 +842,6 @@ end)</code></pre>
         </p>
         <div class="code-file-bar">
           <span class="code-filename">SpatialHashGrid.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,2)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local SpatialHashGrid = {}
@@ -924,10 +910,6 @@ return SpatialHashGrid</code></pre>
         </p>
         <div class="code-file-bar">
           <span class="code-filename">SnapshotRewinder.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,3)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local SNAPSHOT_HZ : number = 20
@@ -981,10 +963,6 @@ return table.freeze(SnapshotRewinder)</code></pre>
         </p>
         <div class="code-file-bar">
           <span class="code-filename">DeferredEffectQueue.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,4)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local DeferredEffectQueue = {}
@@ -1040,10 +1018,6 @@ return DeferredEffectQueue</code></pre>
         </p>
         <div class="code-file-bar">
           <span class="code-filename">StandManager.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,5)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">local AnimProxy = {}; AnimProxy.__index = AnimProxy
 
@@ -1090,10 +1064,6 @@ end
         </p>
         <div class="code-file-bar">
           <span class="code-filename">SessionManager.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,6)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local DataStoreService   = game:GetService("DataStoreService")
@@ -1191,10 +1161,6 @@ return table.freeze(SessionManager)</code></pre>
         </p>
         <div class="code-file-bar">
           <span class="code-filename">RateLimiter.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,7)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
 local RateLimiter = {}
@@ -1253,10 +1219,6 @@ return RateLimiter
         </p>
         <div class="code-file-bar">
           <span class="code-filename">ServiceLoader.lua</span>
-          <button class="copy-btn" onclick="copyCode(this,8)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span class="copy-label">Copy</span>
-          </button>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
 type Service = {
@@ -1315,6 +1277,134 @@ end
 return ServiceLoader</code></pre>
       </div>
 
+      <div class="code-panel" data-panel="9">
+        <p class="code-desc">
+          Typed signal — connect, once, fire, disconnect. Connections return a handle
+          so callers own their lifetime. <code>once()</code> auto-disconnects after the first fire.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">Signal.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+type Handler&lt;T...&gt; = (T...) -&gt; ()
+export type Connection = { disconnect: () -&gt; () }
+export type Signal&lt;T...&gt; = {
+    connect : (Signal&lt;T...&gt;, Handler&lt;T...&gt;) -&gt; Connection,
+    once    : (Signal&lt;T...&gt;, Handler&lt;T...&gt;) -&gt; Connection,
+    fire    : (Signal&lt;T...&gt;, T...) -&gt; (),
+    destroy : (Signal&lt;T...&gt;) -&gt; (),
+}
+
+local Signal = {}
+Signal.__index = Signal
+
+function Signal.new&lt;T...&gt;(): Signal&lt;T...&gt;
+    return setmetatable({ _handlers = {} }, Signal) :: any
+end
+
+function Signal.connect&lt;T...&gt;(self: Signal&lt;T...&gt;, fn: Handler&lt;T...&gt;): Connection
+    local handlers = (self :: any)._handlers
+    table.insert(handlers, fn)
+    return {
+        disconnect = function()
+            local i = table.find(handlers, fn)
+            if i then table.remove(handlers, i) end
+        end,
+    }
+end
+
+-- auto-disconnects after the first fire
+function Signal.once&lt;T...&gt;(self: Signal&lt;T...&gt;, fn: Handler&lt;T...&gt;): Connection
+    local conn: Connection
+    conn = self:connect(function(...)
+        conn.disconnect()
+        fn(...)
+    end)
+    return conn
+end
+
+function Signal.fire&lt;T...&gt;(self: Signal&lt;T...&gt;, ...: T...)
+    for _, fn in (self :: any)._handlers do
+        fn(...)
+    end
+end
+
+function Signal.destroy(self: Signal&lt;any&gt;)
+    (self :: any)._handlers = {}
+end
+
+return Signal</code></pre>
+      </div>
+
+      <div class="code-panel" data-panel="10">
+        <p class="code-desc">
+          TTL cache for expensive lookups — DataStore reads, HttpService responses, computed values.
+          Entries expire after <code>ttl</code> seconds. Eviction is lazy: stale keys are
+          cleared on <code>set()</code> when over capacity, so there's no background loop.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">Cache.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+type Entry&lt;V&gt; = { value: V, expiresAt: number }
+
+local Cache = {}
+Cache.__index = Cache
+
+type SelfFields&lt;K, V&gt; = {
+    _data : { [K]: Entry&lt;V&gt; },
+    _ttl  : number,
+    _max  : number,
+}
+export type Cache&lt;K, V&gt; = typeof(setmetatable({} :: SelfFields&lt;K, V&gt;, Cache))
+
+function Cache.new&lt;K, V&gt;(ttl: number, maxSize: number): Cache&lt;K, V&gt;
+    return setmetatable({ _data = {}, _ttl = ttl, _max = maxSize }, Cache) :: any
+end
+
+function Cache.get&lt;K, V&gt;(self: Cache&lt;K, V&gt;, key: K): V?
+    local entry = (self :: any)._data[key]
+    if not entry then return nil end
+    if os.clock() &gt; entry.expiresAt then
+        (self :: any)._data[key] = nil
+        return nil
+    end
+    return entry.value
+end
+
+function Cache.set&lt;K, V&gt;(self: Cache&lt;K, V&gt;, key: K, value: V)
+    local s    = self :: any
+    s._data[key] = { value = value, expiresAt = os.clock() + s._ttl }
+    local count = 0
+    for _ in s._data do count += 1 end
+    if count &gt; s._max then
+        local now = os.clock()
+        for k, e in s._data do
+            if now &gt; e.expiresAt then s._data[k] = nil end
+        end
+    end
+end
+
+function Cache.invalidate&lt;K, V&gt;(self: Cache&lt;K, V&gt;, key: K)
+    (self :: any)._data[key] = nil
+end
+
+function Cache.clear&lt;K, V&gt;(self: Cache&lt;K, V&gt;)
+    (self :: any)._data = {}
+end
+
+return Cache
+
+-- local httpCache = Cache.new(30, 200)  -- 30s TTL, max 200 entries
+-- local function fetchJson(url)
+--     local cached = httpCache:get(url)
+--     if cached then return cached end
+--     local ok, res = pcall(HttpService.GetAsync, HttpService, url)
+--     if ok then httpCache:set(url, res) end
+--     return ok and res or nil
+-- end</code></pre>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1371,15 +1461,34 @@ return ServiceLoader</code></pre>
     setTimeout(() => document.getElementById('loader').classList.add('done'), 680);
   });
 
-  // Tab switcher
-  document.querySelectorAll('.code-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelector('[data-panel="' + tab.dataset.tab + '"]').classList.add('active');
+  // Code slider
+  (function () {
+    const panels  = document.querySelectorAll('.code-panel');
+    const nameEl  = document.getElementById('code-nav-name');
+    const ctrEl   = document.getElementById('code-nav-counter');
+    const names   = [
+      'Bezier hitbox', 'Hitbox dispatch', 'SpatialHashGrid',
+      'SnapshotRewinder', 'DeferredEffectQueue', 'AnimProxy',
+      'SessionManager', 'RateLimiter', 'ServiceLoader',
+      'Signal', 'Cache',
+    ];
+    let current = 0;
+
+    function goTo(i) {
+      panels[current].classList.remove('active');
+      current = ((i % panels.length) + panels.length) % panels.length;
+      panels[current].classList.add('active');
+      nameEl.textContent = names[current];
+      ctrEl.textContent  = (current + 1) + ' / ' + panels.length;
+    }
+
+    document.getElementById('code-prev').addEventListener('click', () => goTo(current - 1));
+    document.getElementById('code-next').addEventListener('click', () => goTo(current + 1));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft')  goTo(current - 1);
+      if (e.key === 'ArrowRight') goTo(current + 1);
     });
-  });
+  })();
 
   // Scroll-reveal
   const revealObserver = new IntersectionObserver(
@@ -1394,20 +1503,6 @@ return ServiceLoader</code></pre>
     navEl.classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
 
-  // Copy buttons
-  function copyCode(btn, panelIndex) {
-    const panel = document.querySelector('[data-panel="' + panelIndex + '"]');
-    const code  = panel && panel.querySelector('code');
-    if (!code) return;
-    navigator.clipboard.writeText(code.innerText).then(() => {
-      btn.classList.add('copied');
-      btn.querySelector('.copy-label').textContent = 'Copied!';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.querySelector('.copy-label').textContent = 'Copy';
-      }, 1800);
-    });
-  }
 
   // Cursor
   (function () {
