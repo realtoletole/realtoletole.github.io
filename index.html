@@ -516,19 +516,106 @@
     <h2 class="section-title">Real production Luau.</h2>
 
     <div class="code-tabs">
-      <button class="code-tab active" data-tab="0">SpatialHashGrid</button>
-      <button class="code-tab" data-tab="1">SnapshotRewinder</button>
-      <button class="code-tab" data-tab="2">FeintSystem</button>
+      <button class="code-tab active" data-tab="0">Bezier hitbox</button>
+      <button class="code-tab" data-tab="1">Hitbox dispatch</button>
+      <button class="code-tab" data-tab="2">SpatialHashGrid</button>
+      <button class="code-tab" data-tab="3">SnapshotRewinder</button>
+      <button class="code-tab" data-tab="4">DeferredEffectQueue</button>
+      <button class="code-tab" data-tab="5">AnimProxy</button>
     </div>
 
     <div class="code-panels">
 
       <div class="code-panel active" data-panel="0">
         <p class="code-desc">
-          <strong>Spatial hash grid.</strong> O(1) average-case AOE and nearest-neighbour
-          queries on hundreds of NPCs. Cells keyed by an integer hash so lookups stay fast.
-          Update path skips work when the entity hasn't crossed a cell boundary, queries
-          test squared distance to avoid a sqrt per candidate.
+          <strong>ToleHitbox: Bézier path movement and cone filter.</strong> Cubic and
+          quadratic Bézier evaluation share a single update site via Luau's
+          <code>if-then-else</code> expression. The cone filter is a single dot product
+          against the origin's forward axis, with the threshold precomputed from a
+          half-angle in degrees so runtime checks are one cosine compare.
+        </p>
+        <pre class="code-block"><code class="language-lua">-- ToleHitbox: cubic / quadratic Bézier path evaluation.
+local function cubicBezier(p0, p1, p2, p3, t)
+    local u = 1 - t; local tt = t * t; local uu = u * u
+    return (uu * u)     * p0
+         + (3 * uu * t) * p1
+         + (3 * u * tt) * p2
+         + (tt * t)     * p3
+end
+
+-- Both arities collapse into one update call site. task.defer schedules
+-- the destruction off the current tick so the final hit still resolves.
+function Hitbox:_updateBezier(dt)
+    self.BezierElapsed = math.min(self.BezierElapsed + dt, self.BezierDuration)
+    local t    = self.BezierElapsed / self.BezierDuration
+    local path = self.BezierPath
+    local pos  = if #path == 4
+        then cubicBezier(path[1], path[2], path[3], path[4], t)
+        else quadraticBezier(path[1], path[2], path[3], t)
+    if t &gt;= 1 then task.defer(self.destroy, self) end
+    return CFrame.new(pos)
+end
+
+-- Cone filter: dot of forward axis vs unit-vector to target.
+-- ConeAngle is the half-angle in degrees (45 = 90° forward arc).
+-- math.cos(rad) collapses the threshold into a single scalar so the
+-- per-target check is one Dot and one compare — no sqrt, no acos.
+function Hitbox:_passesCone(pos)
+    if not self.ConeAngle or not self.ConeOrigin then return true end
+    local cf        = self.ConeOrigin.CFrame
+    local toTarget  = (pos - cf.Position).Unit
+    local threshold = math.cos(math.rad(self.ConeAngle))
+    return cf.LookVector:Dot(toTarget) &gt;= threshold
+end</code></pre>
+      </div>
+
+      <div class="code-panel" data-panel="1">
+        <p class="code-desc">
+          <strong>ToleHitbox: client dispatch routing.</strong> The hitbox network packet
+          carries a string mode tag. Instead of a long <code>if/elseif</code> ladder, the
+          mode is a key into a dispatch table; adding a new packet type is one entry
+          rather than one branch. Unknown modes warn instead of silently no-op'ing.
+        </p>
+        <pre class="code-block"><code class="language-lua">type Packet = { _Mode: string, _Tick: number, [string]: any }
+
+local active : { [number]: ToleHitbox.Hitbox } = {}
+
+local dispatch : { [string]: (Packet) -&gt; () } = {
+    New = function(p)
+        local hitbox    = ToleHitbox.new(p :: any)
+        active[p._Tick] = hitbox
+        ToleHitboxRemote:FireServer(p._Tick)  -- ack to server
+    end,
+    Start     = function(p) active[p._Tick]:start()              end,
+    Stop      = function(p) active[p._Tick]:stop()               end,
+    Pause     = function(p) active[p._Tick]:pause()              end,
+    Resume    = function(p) active[p._Tick]:resume()             end,
+    ClrTag    = function(p) active[p._Tick]:clearTaggedChars()   end,
+    AddIgnore = function(p) active[p._Tick]:addIgnore(p.Targets) end,
+    Destroy   = function(p)
+        if active[p._Tick] then
+            active[p._Tick]:destroy()
+            active[p._Tick] = nil
+        end
+    end,
+}
+
+ToleHitboxRemote.OnClientEvent:Connect(function(packet : Packet)
+    local handler = dispatch[packet._Mode]
+    if handler then
+        handler(packet)
+    else
+        warn(("[ToleHitboxLocal] unknown mode: %q"):format(packet._Mode))
+    end
+end)</code></pre>
+      </div>
+
+      <div class="code-panel" data-panel="2">
+        <p class="code-desc">
+          <strong>SpatialHashGrid.</strong> O(1) average-case AOE and nearest-neighbour
+          queries on hundreds of NPCs. Cells keyed by an integer hash. Update path skips
+          work when the entity hasn't crossed a cell boundary; queries narrow by squared
+          distance to avoid a sqrt per candidate.
         </p>
         <pre class="code-block"><code class="language-lua">--!strict
 local SpatialHashGrid = {}
@@ -548,14 +635,9 @@ local function hash(cx : number, cz : number) : number
     return cx * 73856093 + cz * 19349663
 end
 
-function SpatialHashGrid.new(cellSize : number) : Grid
-    return setmetatable({
-        cellSize = cellSize, invSize = 1 / cellSize,
-        cells = {}, entityCells = {}, entityPos = {},
-    }, SpatialHashGrid) :: any
-end
-
--- Cheap path: if the entity is still in the same cell, just patch position.
+-- Cheap path: if the entity hasn't crossed a cell boundary, just patch
+-- the stored position. Avoids a remove + insert round-trip in the
+-- common case where movement is small relative to cellSize.
 function SpatialHashGrid.update(self : Grid, entity : Entity, pos : Vector3)
     local oldPos = self.entityPos[entity]
     if not oldPos then return self:insert(entity, pos) end
@@ -570,14 +652,14 @@ function SpatialHashGrid.update(self : Grid, entity : Entity, pos : Vector3)
 end
 
 -- Iterate only the cells the query disc could touch, then narrow by
--- squared distance to skip a sqrt per candidate.
+-- squared distance — skips a sqrt per candidate.
 function SpatialHashGrid.queryRadius(
     self : Grid, center : Vector3, radius : number
 ) : { Entity }
-    local inv = self.invSize
-    local r   = math.ceil(radius * inv)
+    local inv    = self.invSize
+    local r      = math.ceil(radius * inv)
     local cx, cz = math.floor(center.X * inv), math.floor(center.Z * inv)
-    local r2 = radius * radius
+    local r2     = radius * radius
     local result : { Entity } = {}
     for dx = -r, r do
         for dz = -r, r do
@@ -598,11 +680,12 @@ end
 return SpatialHashGrid</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="1">
+      <div class="code-panel" data-panel="3">
         <p class="code-desc">
-          <strong>Lag compensation.</strong> Records each character's position 20 times a
+          <strong>SnapshotRewinder.</strong> Records each character's position 20 times a
           second so the server can check what the attacker actually saw at fire-time.
-          Bounded at 300&nbsp;ms. Strict-typed, ring-buffered for constant memory.
+          Bounded at 300&nbsp;ms so a malicious client can't request rewinds arbitrarily
+          far back. Strict-typed, ring-buffered for constant memory.
         </p>
         <pre class="code-block"><code class="language-lua">--!strict
 local SNAPSHOT_HZ : number = 20
@@ -637,7 +720,7 @@ function SnapshotRewinder.cframeAt(char : Model, t : number) : CFrame?
     return (before and before.cf) or (after and after.cf)
 end
 
--- Validates an attacker's reported aim. (true, rewoundCFrame) if `seenPos`
+-- Validates an attacker's reported aim. (true, rewoundCFrame) if seenPos
 -- is within `tolerance` studs of where target really was at clock time t.
 function SnapshotRewinder.verify(
     target : Model, t : number, seenPos : Vector3, tolerance : number
@@ -650,62 +733,108 @@ end
 return table.freeze(SnapshotRewinder)</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="2">
+      <div class="code-panel" data-panel="4">
         <p class="code-desc">
-          <strong>Cancels in-flight attacks.</strong> Each attack gets a unique ID. Calling
-          <code>Feint()</code> bumps that ID, and any pending callback holding the old ID
-          becomes a no-op. No race conditions, no orphan hitboxes.
+          <strong>DeferredEffectQueue.</strong> Generic, type-parameterised effect queue
+          gated by a state predicate. While <code>isFrozen()</code> returns true, effects
+          are queued; <code>flush()</code> drains them in FIFO order. Built for time-stop
+          combat in a JoJo project: hits land mid-stop but only resolve when time
+          resumes. Replaces ad-hoc <code>if frozen then queue else apply</code> branches
+          scattered through combat code.
         </p>
-        <pre class="code-block"><code class="language-lua">function FeintSystem.RegisterAttackStart(char, attackType, SkillName, attackData)
-    -- Bump per-character counter; this id is what every async callback
-    -- must check before it applies any effect.
-    FeintSystem.AttackIds[char] = (FeintSystem.AttackIds[char] or 0) + 1
-    local attackId = FeintSystem.AttackIds[char]
+        <pre class="code-block"><code class="language-lua">--!strict
+local DeferredEffectQueue = {}
+DeferredEffectQueue.__index = DeferredEffectQueue
 
-    FeintSystem.AttackStartTimes[char] = {
-        StartTime  = os.clock(),
-        AttackType = attackType,
-        SkillName  = SkillName,
-        AttackId   = attackId,
-    }
+export type Effect&lt;T&gt;  = (T) -&gt; ()
+export type Predicate  = () -&gt; boolean
 
-    attackData = attackData or {}
-    attackData.AttackId = attackId
-    FeintSystem.ActiveAttacks[char] = attackData
+type SelfFields&lt;T&gt; = {
+    name : string, queue : { T },
+    apply : Effect&lt;T&gt;, isFrozen : Predicate,
+}
+export type Queue&lt;T&gt; = typeof(setmetatable({} :: SelfFields&lt;T&gt;, DeferredEffectQueue))
+
+function DeferredEffectQueue.new&lt;T&gt;(
+    name : string, apply : Effect&lt;T&gt;, isFrozen : Predicate
+) : Queue&lt;T&gt;
+    return setmetatable({
+        name = name, queue = {}, apply = apply, isFrozen = isFrozen,
+    }, DeferredEffectQueue) :: any
 end
 
-function FeintSystem.Feint(player)
-    local char = player.Character
-    if not char or not FeintSystem.CanFeint(char) then return false end
-
-    -- Invalidate every in-flight callback for this attack in one line.
-    FeintSystem.AttackIds[char] = (FeintSystem.AttackIds[char] or 0) + 1
-
-    local data = FeintSystem.ActiveAttacks[char]
-    if data then
-        for _, anim in ipairs(data.Animations or {}) do
-            if anim.IsPlaying then anim:Stop() end
-        end
-        for _, hb in ipairs(data.Hitboxes or {}) do
-            if hb.Stop then hb:Stop() end
-        end
-        for _, vfx in ipairs(data.VFX or {}) do
-            if vfx and vfx.Parent then vfx:Destroy() end
-        end
-        if data.CleanupFunction then pcall(data.CleanupFunction) end
+-- Single entry point: callers never branch on "are we frozen?" themselves.
+function DeferredEffectQueue.push&lt;T&gt;(self : Queue&lt;T&gt;, effect : T)
+    if self.isFrozen() then
+        table.insert(self.queue, effect)
+    else
+        self.apply(effect)
     end
+end
 
-    -- Strip body movers, reset walk/jump, arm cooldown, clear state.
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if root then
-        for _, v in ipairs(root:GetChildren()) do
-            if v:IsA("BodyVelocity") or v:IsA("LinearVelocity") then v:Destroy() end
+-- Drain in FIFO order. Snapshots first so a re-entrant push() during
+-- apply starts a fresh queue rather than mutating the one we're draining.
+function DeferredEffectQueue.flush&lt;T&gt;(self : Queue&lt;T&gt;) : number
+    if #self.queue == 0 then return 0 end
+    local snapshot = self.queue
+    self.queue     = {}
+    for _, effect in snapshot do
+        local ok, err = pcall(self.apply, effect)
+        if not ok then
+            warn(string.format("[%s] effect error: %s", self.name, tostring(err)))
         end
     end
-    setFeintCooldown(char, player)
-    FeintSystem.ActiveAttacks[char] = nil
-    return true
-end</code></pre>
+    return #snapshot
+end
+
+return DeferredEffectQueue</code></pre>
+      </div>
+
+      <div class="code-panel" data-panel="5">
+        <p class="code-desc">
+          <strong>StandManager: server-side AnimationTrack proxies.</strong> The server
+          never loads AnimationTracks. Stand modules call
+          <code>ctx.anims.RightPunch:Play()</code> / <code>:Stop()</code> and these
+          proxies translate those calls into typed RemoteEvent payloads transparently.
+          A lazy <code>__index</code> auto-creates a proxy on first read, so modules can
+          write any animation key with no setup.
+        </p>
+        <pre class="code-block"><code class="language-lua">local AnimProxy = {}; AnimProxy.__index = AnimProxy
+
+-- Lazy table: any animation key auto-creates a proxy on first read,
+-- so stand modules can write `ctx.anims.AnyKey:Play()` with no setup.
+local AnimTable = {}
+AnimTable.__index = function(t, key : string)
+    local proxy = setmetatable(
+        { _player = t._player, _key = key, IsPlaying = false },
+        AnimProxy
+    )
+    rawset(t, key, proxy)
+    return proxy
+end
+
+function AnimProxy:Play(fadeTime : number?, weight : number?, speed : number?)
+    self.IsPlaying = true
+    StandAction:FireClient(self._player, {
+        Action   = "PlayAnimation", AnimKey = self._key,
+        FadeTime = fadeTime, Weight = weight, Speed = speed,
+    })
+end
+
+function AnimProxy:Stop(fadeTime : number?)
+    self.IsPlaying = false
+    StandAction:FireClient(self._player, {
+        Action   = "StopAnimation", AnimKey = self._key,
+        FadeTime = fadeTime,
+    })
+end
+
+local function makeAnimTable(player : Player)
+    return setmetatable({ _player = player }, AnimTable)
+end
+
+-- ctx.anims.RightPunch:Play(0.1, 1, 1)  -- looks like a real AnimationTrack
+-- ctx.anims.AttackPose:Stop(0.2)        -- stand modules never know the difference</code></pre>
       </div>
 
     </div>
