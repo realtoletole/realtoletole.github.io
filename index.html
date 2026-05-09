@@ -4,19 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rami — Roblox Scripter</title>
+  <link rel="preconnect" href="https://rsms.me/" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0f14;
-      --surface: #13161f;
-      --surface2: #1a1e2a;
-      --accent: #5865f2;
-      --accent2: #7289da;
-      --green: #57f287;
-      --text: #e2e8f0;
-      --muted: #8892a4;
-      --border: #2a2f3e;
+      --bg: #0b0c0f;
+      --surface: #131419;
+      --text: #e8eaee;
+      --muted: #7a808c;
+      --border: #1d1f26;
+      --border-soft: #16181d;
+      --accent: #6577e8;
+      --green: #4ade80;
     }
 
     html { scroll-behavior: smooth; }
@@ -24,9 +25,19 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-feature-settings: 'cv02', 'cv11', 'ss01';
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+
+    @supports (font-variation-settings: normal) {
+      body { font-family: 'InterVariable', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    ::selection { background: var(--accent); color: #fff; }
 
     /* ── NAV ── */
     nav {
@@ -36,33 +47,32 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 2.5rem;
-      background: rgba(13, 15, 20, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      padding: 1.05rem 2rem;
+      background: rgba(11, 12, 15, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .nav-logo {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: -0.5px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
     }
+    .nav-logo .dot { color: var(--accent); }
 
     .nav-links {
       display: flex;
-      gap: 2rem;
+      gap: 1.8rem;
       list-style: none;
     }
 
     .nav-links a {
       color: var(--muted);
-      text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
-      transition: color 0.2s;
+      transition: color 0.15s;
     }
-
     .nav-links a:hover { color: var(--text); }
 
     /* ── HERO ── */
@@ -72,67 +82,51 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 6rem 2rem 4rem;
-      position: relative;
-      overflow: hidden;
+      padding: 8rem 1.5rem 6rem;
     }
 
-    #hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% 30%, rgba(88,101,242,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 80% 70%, rgba(114,137,218,0.1) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    .hero-inner { position: relative; z-index: 1; max-width: 760px; }
+    .hero-inner { max-width: 660px; }
 
     .hero-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      background: rgba(88,101,242,0.15);
-      border: 1px solid rgba(88,101,242,0.35);
-      color: var(--accent2);
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.9rem;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.32rem 0.8rem;
+      border: 1px solid var(--border);
       border-radius: 999px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2.2rem;
     }
-
     .hero-badge::before {
       content: '';
-      width: 7px; height: 7px;
+      width: 6px; height: 6px;
       background: var(--green);
       border-radius: 50%;
-      box-shadow: 0 0 6px var(--green);
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
     }
 
     h1 {
-      font-size: clamp(2.8rem, 7vw, 5rem);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -2px;
-      margin-bottom: 1.2rem;
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      font-weight: 600;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.4rem;
     }
-
-    h1 span { color: var(--accent); }
+    h1 .accent { color: var(--accent); }
 
     .hero-sub {
-      font-size: 1.15rem;
+      font-size: 1rem;
       color: var(--muted);
-      max-width: 520px;
-      margin: 0 auto 2.5rem;
+      max-width: 500px;
+      margin: 0 auto 2.4rem;
+      line-height: 1.65;
     }
 
     .hero-cta {
       display: flex;
-      gap: 1rem;
+      gap: 0.6rem;
       justify-content: center;
       flex-wrap: wrap;
     }
@@ -140,255 +134,161 @@
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.75rem 1.6rem;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
+      gap: 0.5rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
       cursor: pointer;
-      border: none;
     }
 
     .btn-primary {
       background: var(--accent);
       color: #fff;
     }
-    .btn-primary:hover { background: #4752c4; transform: translateY(-1px); }
+    .btn-primary:hover { background: #5868d8; }
 
     .btn-outline {
-      background: transparent;
       color: var(--text);
-      border: 1px solid var(--border);
+      border-color: var(--border);
     }
-    .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .btn-outline:hover { border-color: var(--muted); }
 
-    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     /* ── SECTIONS ── */
-    section { padding: 6rem 2rem; }
+    section { padding: 6rem 1.5rem; }
 
-    .container { max-width: 1000px; margin: 0 auto; }
+    .container { max-width: 880px; margin: 0 auto; }
 
     .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.6rem;
+      color: var(--muted);
+      margin-bottom: 0.7rem;
     }
 
     .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 1rem;
-    }
-
-    .section-desc {
-      color: var(--muted);
-      max-width: 560px;
-      margin-bottom: 3rem;
+      font-size: clamp(1.55rem, 3.5vw, 2rem);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      margin-bottom: 2.5rem;
     }
 
     /* ── ABOUT ── */
-    #about { background: var(--surface); }
+    #about { border-top: 1px solid var(--border-soft); }
 
     .about-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 3.5rem;
       align-items: start;
     }
 
     .about-text p { color: var(--muted); margin-bottom: 1rem; }
-    .about-text strong { color: var(--text); }
+    .about-text p:last-child { margin-bottom: 0; }
+    .about-text strong { color: var(--text); font-weight: 500; }
 
     .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 0.6rem;
     }
 
     .stat-card {
-      background: var(--surface2);
+      background: transparent;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.4rem;
-      text-align: center;
+      border-radius: 10px;
+      padding: 1.1rem 1.2rem;
     }
 
     .stat-num {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: -1px;
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .stat-label {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
     }
 
-    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
-
     /* ── SKILLS ── */
+    #skills { border-top: 1px solid var(--border-soft); }
+
     .skills-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     .skill-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.6rem;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-
-    .skill-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-3px);
-    }
-
-    .skill-icon {
-      width: 44px; height: 44px;
-      background: rgba(88,101,242,0.15);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1rem;
-      font-size: 1.3rem;
-    }
-
-    .skill-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-    .skill-card p { font-size: 0.85rem; color: var(--muted); }
-
-    .skill-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 0.9rem;
-    }
-
-    .tag {
-      background: rgba(88,101,242,0.12);
-      color: var(--accent2);
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.25rem 0.6rem;
-      border-radius: 5px;
-    }
-
-    /* ── PROJECTS ── */
-    #projects { background: var(--surface); }
-
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .project-card {
       background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
+      padding: 1.7rem 1.6rem;
+      transition: background 0.15s;
+    }
+    .skill-card:hover { background: var(--surface); }
+
+    .skill-num {
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      display: block;
+      margin-bottom: 0.7rem;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
     }
 
-    .project-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-4px);
+    .skill-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
     }
 
-    .project-thumb {
-      height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .project-thumb.t1 { background: linear-gradient(135deg, #1a1f35, #252d4a); }
-    .project-thumb.t2 { background: linear-gradient(135deg, #1a2a1a, #1e3a20); }
-    .project-thumb.t3 { background: linear-gradient(135deg, #2a1a1a, #3a1e1e); }
-
-    .project-body { padding: 1.4rem; }
-    .project-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-    .project-body p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
-
-    .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-
-    .coming-soon-label {
-      position: absolute;
-      top: 10px; right: 10px;
-      background: rgba(88,101,242,0.8);
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.2rem 0.55rem;
-      border-radius: 5px;
-    }
-
-    /* ── CONTACT ── */
-    .contact-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3rem;
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .contact-card p { color: var(--muted); margin-bottom: 2rem; }
-
-    .contact-links {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 2rem;
+    .skill-card p {
+      font-size: 0.85rem;
       color: var(--muted);
-      font-size: 0.82rem;
-      border-top: 1px solid var(--border);
+      line-height: 1.6;
     }
-
-    footer a { color: var(--accent); text-decoration: none; }
 
     /* ── CODE ── */
-    #code { background: var(--bg); }
+    #code { border-top: 1px solid var(--border-soft); }
 
     .code-tabs {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.1rem;
       flex-wrap: wrap;
-      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
     }
 
     .code-tab {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid transparent;
       color: var(--muted);
       cursor: pointer;
       font-family: inherit;
       font-size: 0.82rem;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      transition: all 0.2s;
+      font-weight: 500;
+      padding: 0.6rem 0.9rem;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
     }
-    .code-tab:hover { color: var(--text); border-color: var(--accent); }
-    .code-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .code-tab:hover { color: var(--text); }
+    .code-tab.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
 
     .code-panel { display: none; }
     .code-panel.active { display: block; }
@@ -396,28 +296,68 @@
     .code-desc {
       color: var(--muted);
       font-size: 0.88rem;
-      margin-bottom: 1rem;
-      max-width: 680px;
+      line-height: 1.7;
+      margin: 1.5rem 0 1.1rem;
+      max-width: 720px;
+    }
+    .code-desc strong { color: var(--text); font-weight: 500; }
+    .code-desc code {
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      background: var(--surface);
+      padding: 0.08rem 0.36rem;
+      border-radius: 4px;
     }
 
     .code-block {
-      background: #1a1d27 !important;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: #0d0f14 !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 10px;
       font-size: 0.78rem;
       line-height: 1.65;
       margin: 0;
       overflow-x: auto;
-      padding: 1.5rem !important;
+      padding: 1.4rem 1.5rem !important;
     }
 
-    .code-block code { font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; }
+    .code-block code {
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    /* ── CONTACT ── */
+    #contact { border-top: 1px solid var(--border-soft); }
+
+    .contact-block p {
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+      max-width: 540px;
+    }
+
+    .contact-links {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2.4rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      border-top: 1px solid var(--border-soft);
+    }
+    footer a { color: var(--text); }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 680px) {
-      .about-grid { grid-template-columns: 1fr; }
-      nav { padding: 1rem 1.2rem; }
-      .nav-links { gap: 1.2rem; }
+    @media (max-width: 720px) {
+      nav { padding: 0.9rem 1.2rem; }
+      .nav-links { gap: 1.1rem; }
+      section { padding: 4.5rem 1.2rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.2rem; }
+      .skills-grid { grid-template-columns: 1fr; }
+      #hero { padding: 7rem 1.2rem 5rem; }
     }
   </style>
 </head>
@@ -425,12 +365,11 @@
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">rami.dev</div>
+  <div class="nav-logo">rami<span class="dot">.</span>dev</div>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#code">Code</a></li>
-    <li><a href="#projects">Projects</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
@@ -439,20 +378,14 @@
 <section id="hero">
   <div class="hero-inner">
     <div class="hero-badge">Available for hire</div>
-    <h1>Hi, I'm <span>Rami</span>.<br>I script for Roblox.</h1>
+    <h1>Roblox scripter <span class="accent">crafting</span> systems that scale.</h1>
     <p class="hero-sub">
-      7 years of Roblox Studio scripting experience. I build clean, scalable systems
-      using OOP, Modules, and DataStores.
+      Seven years of Luau. I write clean, typed, OOP-driven combat, hitbox, and data systems
+      for serious Roblox games.
     </p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="#contact">
-        <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 14.09 14.09 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/></svg>
-        Get in Touch
-      </a>
-      <a class="btn btn-outline" href="https://www.roblox.com/users/search?keyword=peely779" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M18.926 23.998 0 18.926 5.074.002 24 5.074zm-12.344-9.02 2.218-8.232 8.232 2.218-2.218 8.232z"/></svg>
-        Roblox Profile
-      </a>
+      <a class="btn btn-primary" href="#contact">Get in touch</a>
+      <a class="btn btn-outline" href="#code">See the code</a>
     </div>
   </div>
 </section>
@@ -460,42 +393,39 @@
 <!-- ABOUT -->
 <section id="about">
   <div class="container">
+    <p class="section-label">About</p>
+    <h2 class="section-title">Seven years, still shipping.</h2>
     <div class="about-grid">
       <div class="about-text">
-        <p class="section-label">About me</p>
-        <h2 class="section-title">7 years, still going.</h2>
         <p>
-          I'm <strong>Rami</strong>, a passionate Roblox Studio scripter with <strong>7 years of hands-on experience</strong>.
-          I started scripting just to make small games and never stopped — now I build
-          full-scale systems that power real games.
+          I'm <strong>Rami</strong> — a Roblox Studio scripter who treats Luau like a real
+          language. Strict typing, single-responsibility modules, and APIs you can read
+          without holding your breath.
         </p>
         <p>
-          I specialise in writing <strong>clean, maintainable Luau</strong> using object-oriented design patterns,
-          module-based architecture, and robust DataStore solutions. I care about code that's
-          easy to read, easy to extend, and actually works.
+          My specialties: custom hitbox libraries, lag-compensated combat, attack-state
+          machines with cancellation tokens, and DataStore layers that survive bad weather.
         </p>
         <p>
-          Whether it's a complex game system, a data persistence layer, or a polished in-game UI —
-          I've probably built it.
+          I'd rather delete code than add it.
         </p>
       </div>
-
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-num">7+</div>
-          <div class="stat-label">Years Scripting</div>
+          <div class="stat-label">Years scripting</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">100%</div>
-          <div class="stat-label">Luau / Roblox</div>
+          <div class="stat-num">Luau</div>
+          <div class="stat-label">--!strict by default</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">OOP</div>
-          <div class="stat-label">Design Patterns</div>
+          <div class="stat-label">Modular by design</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">∞</div>
-          <div class="stat-label">Coffee Consumed</div>
+          <div class="stat-label">Coffee consumed</div>
         </div>
       </div>
     </div>
@@ -505,82 +435,36 @@
 <!-- SKILLS -->
 <section id="skills">
   <div class="container">
-    <p class="section-label">What I do</p>
-    <h2 class="section-title">Core skills</h2>
-    <p class="section-desc">My main areas of expertise after 7 years of writing Roblox Luau.</p>
-
+    <p class="section-label">Skills</p>
+    <h2 class="section-title">What I build.</h2>
     <div class="skills-grid">
 
       <div class="skill-card">
-        <div class="skill-icon">🎯</div>
-        <h3>Custom Hitbox Systems</h3>
-        <p>Built a full hitbox library from scratch — server/client hybrid detection, velocity prediction for lag compensation, cone filtering, and Bezier path movement.</p>
-        <div class="skill-tags">
-          <span class="tag">Spatial Queries</span>
-          <span class="tag">Velocity Prediction</span>
-          <span class="tag">Bezier Paths</span>
-          <span class="tag">Cone Filtering</span>
-        </div>
+        <span class="skill-num">01</span>
+        <h3>Hitbox &amp; lag compensation</h3>
+        <p>Cylindrical beam volumes, cone filtering, Bézier projectile paths, and
+        snapshot-based rewind for fair server-side hit verification.</p>
       </div>
 
       <div class="skill-card">
-        <div class="skill-icon">🏗️</div>
-        <h3>Object-Oriented Programming</h3>
-        <p>Class-based architecture using Luau metatables — every major system (hitboxes, combat, VFX) is a clean OOP module with well-defined APIs.</p>
-        <div class="skill-tags">
-          <span class="tag">Metatables</span>
-          <span class="tag">__index / __newindex</span>
-          <span class="tag">Encapsulation</span>
-          <span class="tag">Signal Pattern</span>
-        </div>
+        <span class="skill-num">02</span>
+        <h3>Combat systems</h3>
+        <p>M1 combos, directional dashes, parry &amp; guard-break, feint cancellation
+        with attack-ID invalidation, knockdown carry mechanics.</p>
       </div>
 
       <div class="skill-card">
-        <div class="skill-icon">📦</div>
-        <h3>Service-Based Architecture</h3>
-        <p>Ordered boot sequences that load services in dependency order — DataHandler first, then player setup, combat, skills, VFX, and mission systems.</p>
-        <div class="skill-tags">
-          <span class="tag">ModuleScript</span>
-          <span class="tag">Boot Sequencing</span>
-          <span class="tag">pcall Guards</span>
-          <span class="tag">Shared Remotes</span>
-        </div>
+        <span class="skill-num">03</span>
+        <h3>OOP &amp; modules</h3>
+        <p>Metatable-based classes, type-exported APIs, dispatch tables over chained
+        if-blocks, and signals replacing manual connection bookkeeping.</p>
       </div>
 
       <div class="skill-card">
-        <div class="skill-icon">⚔️</div>
-        <h3>Combat Systems</h3>
-        <p>Full combat frameworks: directional dashing, M1 combos, crits, feints, block/parry with timing windows, weapon equipping, and air mechanics.</p>
-        <div class="skill-tags">
-          <span class="tag">Input Handling</span>
-          <span class="tag">Directional Dash</span>
-          <span class="tag">Block / Parry</span>
-          <span class="tag">Anti-Exploit</span>
-        </div>
-      </div>
-
-      <div class="skill-card">
-        <div class="skill-icon">💾</div>
-        <h3>DataStores</h3>
-        <p>Reliable player data layers with session-safe loading, ordered service boot to guarantee data exists before any system reads it.</p>
-        <div class="skill-tags">
-          <span class="tag">DataStoreService</span>
-          <span class="tag">Session Safety</span>
-          <span class="tag">Auto-Save</span>
-          <span class="tag">Data Migration</span>
-        </div>
-      </div>
-
-      <div class="skill-card">
-        <div class="skill-icon">✨</div>
-        <h3>VFX & Effects</h3>
-        <p>Centralised VFX managers handling ground craters, impact effects, movement trails, and class-specific visual effects all driven through clean module APIs.</p>
-        <div class="skill-tags">
-          <span class="tag">PartCache</span>
-          <span class="tag">VFX Manager</span>
-          <span class="tag">ClientVFXHandler</span>
-          <span class="tag">Beam / Particles</span>
-        </div>
+        <span class="skill-num">04</span>
+        <h3>DataStores &amp; services</h3>
+        <p>Session-safe data loading, ordered service boot with pcall guards,
+        attribute-driven state sync, and per-character cleanup flows.</p>
       </div>
 
     </div>
@@ -590,216 +474,192 @@
 <!-- CODE -->
 <section id="code">
   <div class="container">
-    <p class="section-label">Under the hood</p>
-    <h2 class="section-title">Code samples</h2>
-    <p class="section-desc">Real snippets from production Luau — no toy examples.</p>
+    <p class="section-label">Code</p>
+    <h2 class="section-title">Real production Luau.</h2>
 
     <div class="code-tabs">
-      <button class="code-tab active" data-tab="0">Beam Projection</button>
-      <button class="code-tab" data-tab="1">Spread Barrage (Blut Pfeil)</button>
-      <button class="code-tab" data-tab="2">Grab-Carry + Beam (Itto Kaso)</button>
+      <button class="code-tab active" data-tab="0">SnapshotRewinder</button>
+      <button class="code-tab" data-tab="1">FeintSystem</button>
+      <button class="code-tab" data-tab="2">KnockdownService</button>
     </div>
 
     <div class="code-panels">
 
       <div class="code-panel active" data-panel="0">
         <p class="code-desc">
-          From <strong>SkillModule._ActivateBeam</strong> — cylindrical volume detection
-          powering Cero, Gran Rey Cero, and Letzt Stil. Rather than checking distance to
-          the origin, the target's offset is projected onto the beam axis and perpendicular
-          distance is measured from that projection — a true cylinder, no sphere approximation.
+          Server-side <strong>lag compensation</strong> — records HumanoidRootPart snapshots
+          at a fixed cadence and lets the server "rewind" a target's transform back to what
+          the attacker actually saw at fire-time. Bounded by <code>MAX_REWIND</code> so a
+          malicious client cannot request rewinds arbitrarily far back. Strict-typed,
+          ring-buffered, frozen module — single Heartbeat drives all snapshots.
         </p>
-        <pre class="code-block"><code class="language-lua">-- Cylindrical beam volume — used by Cero, Gran Rey Cero, Letzt Stil
--- Projects each target onto the beam axis; rejects if perpendicular
--- distance exceeds BeamRadius or projection falls outside [0, BeamLength].
-function SkillCombat:_ActivateBeam()
-    local root      = self.Character.HumanoidRootPart
-    local origin    = root.Position
-    local direction = root.CFrame.LookVector  -- already a unit vector
+        <pre class="code-block"><code class="language-lua">--!strict
+local SNAPSHOT_HZ : number = 20
+local MAX_REWIND  : number = 0.300
 
-    for _, target in self:_getTargets() do
-        local targetRoot = target:FindFirstChild("HumanoidRootPart")
-        if not targetRoot then continue end
+export type Snapshot = { t: number, cf: CFrame, vel: Vector3 }
+type History = { head: number, capacity: number, snapshots: { Snapshot } }
 
-        local toTarget = targetRoot.Position - origin
+local SnapshotRewinder = {}
+local histories : { [Model]: History } = {}
 
-        -- scalar: signed distance along the beam axis
-        local projLength = toTarget:Dot(direction)
-        -- subtract the along-axis component; remainder is the perpendicular offset
-        local perpDist   = (toTarget - direction * projLength).Magnitude
+-- Returns char's CFrame at clock time `t`, linearly interpolated between
+-- the two bracketing snapshots. nil if older than MAX_REWIND.
+function SnapshotRewinder.cframeAt(char : Model, t : number) : CFrame?
+    local hist = histories[char]
+    if not hist then return nil end
+    if os.clock() - t &gt; MAX_REWIND then return nil end
 
-        if  perpDist   &lt; self.BeamRadius   -- inside cylinder width
-        and projLength &gt; 0                 -- in front of the caster
-        and projLength &lt; self.BeamLength   -- before the beam tip
-        then
-            self:_applyHit(target)
-        end
+    local snaps = hist.snapshots
+    local before, after : Snapshot?, Snapshot? = nil, nil
+    for i = 1, #snaps do
+        local s = snaps[i]
+        if s.t &lt;= t and (not before or s.t &gt; before.t) then before = s end
+        if s.t &gt;= t and (not after  or s.t &lt; after.t)  then after  = s end
     end
-end</code></pre>
+
+    if before and after then
+        local span = after.t - before.t
+        if span &lt;= 0 then return before.cf end
+        return before.cf:Lerp(after.cf, math.clamp((t - before.t) / span, 0, 1))
+    end
+    return (before and before.cf) or (after and after.cf)
+end
+
+-- Validates an attacker's reported aim. (true, rewoundCFrame) if `seenPos`
+-- is within `tolerance` studs of where target really was at clock time t.
+function SnapshotRewinder.verify(
+    target : Model, t : number, seenPos : Vector3, tolerance : number
+) : (boolean, CFrame?)
+    local cf = SnapshotRewinder.cframeAt(target, t)
+    if not cf then return false, nil end
+    return (cf.Position - seenPos).Magnitude &lt;= tolerance, cf
+end
+
+return table.freeze(SnapshotRewinder)</code></pre>
       </div>
 
       <div class="code-panel" data-panel="1">
         <p class="code-desc">
-          From <strong>Skills/Quincy/Blut Pfeil</strong> — a 5-arrow spread barrage.
-          Each arrow's angle fans from centre using <code>(i − ceil(n/2)) × spread</code>.
-          One <code>alreadyHit</code> table is shared across the whole volley so no character
-          can be double-hit even when two arrows overlap on the same heartbeat frame.
-          Each arrow then owns two concurrent heartbeat connections: one to move it, one
-          for hit detection.
+          From <strong>FeintSystem</strong> — attack cancellation via incrementing
+          <code>AttackId</code>. Every started attack stamps an ID into a per-character
+          counter; the in-flight attack carries that ID through animations, hitboxes, and
+          VFX. Calling <code>Feint()</code> bumps the counter, instantly invalidating the
+          attack — any pending callback that doesn't match the current ID becomes a no-op.
+          No race conditions, no lingering hitboxes, no orphan VFX.
         </p>
-        <pre class="code-block"><code class="language-lua">local ARROW_COUNT  = 5
-local SPREAD_ANGLE = 12     -- degrees between each arrow
-local ARROW_DELAY  = 0.08   -- seconds staggered between each fire
+        <pre class="code-block"><code class="language-lua">function FeintSystem.RegisterAttackStart(char, attackType, SkillName, attackData)
+    -- Bump per-character attack counter; this id is what every async
+    -- callback must check before applying its effect.
+    FeintSystem.AttackIds[char] = (FeintSystem.AttackIds[char] or 0) + 1
+    local attackId = FeintSystem.AttackIds[char]
 
--- One shared registry for the whole volley — prevents double-hits even
--- when two arrows clip the same character on the same heartbeat frame.
-local alreadyHit = {}
+    FeintSystem.AttackStartTimes[char] = {
+        StartTime  = os.clock(),
+        AttackType = attackType,
+        SkillName  = SkillName,
+        AttackId   = attackId,
+    }
 
-local baseDir = CFrame.new(spawnPos, spawnPos + char.HumanoidRootPart.CFrame.LookVector)
-
-for i = 1, ARROW_COUNT do
-    -- i=3 is centre; wings fan out: -24°, -12°, 0°, +12°, +24°
-    local spreadOffset = (i - math.ceil(ARROW_COUNT / 2)) * SPREAD_ANGLE
-    local fireDir      = CFrame.Angles(0, math.rad(spreadOffset), 0) * baseDir
-
-    fireArrow(char, spawnCFrame, fireDir, thrownFolder, alreadyHit)
-
-    if i &lt; ARROW_COUNT then task.wait(ARROW_DELAY) end
+    attackData = attackData or {}
+    attackData.AttackId = attackId
+    FeintSystem.ActiveAttacks[char] = attackData
 end
 
--- Inside fireArrow: each arrow runs two heartbeat connections simultaneously
-local moveConn, hitConn
+function FeintSystem.Feint(player)
+    local char = player.Character
+    if not char or not FeintSystem.CanFeint(char) then return false end
 
-moveConn = RunService.Heartbeat:Connect(function(dt)
-    arrow.CFrame += fireDir.LookVector * ARROW_SPEED * dt
-    if (arrow.Position - spawnPos).Magnitude &gt; MAX_RANGE then
-        moveConn:Disconnect(); hitConn:Disconnect(); arrow:Destroy()
+    -- Invalidate every in-flight callback for this attack in one line.
+    FeintSystem.AttackIds[char] = (FeintSystem.AttackIds[char] or 0) + 1
+
+    local data = FeintSystem.ActiveAttacks[char]
+    if data then
+        for _, anim in ipairs(data.Animations or {}) do
+            if anim.IsPlaying then anim:Stop() end
+        end
+        for _, hb in ipairs(data.Hitboxes or {}) do
+            if hb.Stop then hb:Stop() end
+        end
+        for _, vfx in ipairs(data.VFX or {}) do
+            if vfx and vfx.Parent then vfx:Destroy() end
+        end
+        if data.CleanupFunction then pcall(data.CleanupFunction) end
     end
-end)
 
-hitConn = RunService.Heartbeat:Connect(function()
-    for _, target in ToleHitbox.InRadius(arrow.Position, HIT_RADIUS) do
-        if not alreadyHit[target] then
-            alreadyHit[target] = true
-            CM.Hit.Apply(target:FindFirstChildOfClass("Humanoid"), DAMAGE, ...)
+    -- Strip body movers; reset walk/jump; arm cooldown; clear state.
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if root then
+        for _, v in ipairs(root:GetChildren()) do
+            if v:IsA("BodyVelocity") or v:IsA("LinearVelocity") then v:Destroy() end
         end
     end
-end)</code></pre>
+    setFeintCooldown(char, player)
+    FeintSystem.ActiveAttacks[char] = nil
+    return true
+end</code></pre>
       </div>
 
       <div class="code-panel" data-panel="2">
         <p class="code-desc">
-          From <strong>Skills/Itto Kaso</strong> — a four-phase grab skill.
-          Phase 1: ToleHitbox Ball detects a target in melee range.
-          Phase 2: <code>AlignPosition</code> + <code>AlignOrientation</code> constraints
-          lock them to the caster during the dash carry.
-          Phase 3: a Heartbeat loop drains 30% of their MaxHP across evenly-spaced ticks.
-          Phase 4: constraints are destroyed and the target is ragdolled into a downward slam.
+          From <strong>KnockdownService.Carry</strong> — a knocked player can be picked up
+          and carried. Locks the victim with a Weld, swaps their parts to a non-colliding
+          group, marks them <code>Massless</code> so the carrier doesn't drag, plays paired
+          animations on both characters, and listens on Heartbeat for the carrier becoming
+          stunned — at which point the carry releases automatically.
         </p>
-        <pre class="code-block"><code class="language-lua">-- Phase 1 — ToleHitbox Ball detects grab target in melee range
-skill:_ActivateGrab(function(target)
-    local targetRoot = target:FindFirstChild("HumanoidRootPart")
-    local targetHum  = target:FindFirstChildOfClass("Humanoid")
-    if not targetRoot or not targetHum then return end
+        <pre class="code-block"><code class="language-lua">function KnockdownService.Carry(carrier, victim)
+    if not KnockdownService.IsKnocked(victim) then return false end
+    local data = KnockdownService.KnockedPlayers[victim]
+    if data.carriedBy then return false end
 
-    -- Phase 2 — Align constraints carry the target with the caster
-    local alignPos           = Instance.new("AlignPosition")
-    alignPos.Attachment0     = targetRoot:FindFirstChildOfClass("Attachment")
-    alignPos.Attachment1     = carrierAttachment
-    alignPos.RigidityEnabled = true
-    alignPos.Parent          = targetRoot
+    local carrierTorso = carrier:FindFirstChild("Torso") or carrier.HumanoidRootPart
+    local victimRoot   = victim:FindFirstChild("HumanoidRootPart")
+    if (carrier.HumanoidRootPart.Position - victimRoot.Position).Magnitude &gt; 7 then
+        return false  -- range gate
+    end
 
-    local alignOri           = Instance.new("AlignOrientation")
-    alignOri.Attachment0     = targetRoot:FindFirstChildOfClass("Attachment")
-    alignOri.Attachment1     = carrierAttachment
-    alignOri.RigidityEnabled = true
-    alignOri.Parent          = targetRoot
+    -- Cancel the auto-wakeup; lift the ragdoll so the weld can pose them.
+    if data.thread then pcall(task.cancel, data.thread); data.thread = nil end
+    CM.Ragdoll.Remove(victim)
 
-    -- Phase 3 — Drain 30 % MaxHP across BEAM_HITS evenly-timed ticks
-    local damagePerHit       = (targetHum.MaxHealth * BEAM_DAMAGE_PERCENT) / BEAM_HITS
-    local accumulated, count = 0, 0
-    local beamConn
-
-    beamConn = RunService.Heartbeat:Connect(function(dt)
-        if count &gt;= BEAM_HITS then beamConn:Disconnect(); return end
-        accumulated += dt
-        if accumulated &gt;= hitRate then
-            accumulated -= hitRate
-            count       += 1
-            CM.Hit.Apply(targetHum, damagePerHit, 0.1, Vector3.zero, char, false)
+    -- Persist original Massless so we can restore on release.
+    for _, part in ipairs(victim:GetChildren()) do
+        if part:IsA("BasePart") then
+            part:SetAttribute("WasMassless", part.Massless)
+            part.Massless       = true
+            part.CollisionGroup = "Carried"
         end
-    end)
+    end
 
-    -- Phase 4 — Release: remove constraints, ragdoll, slam downward
-    task.delay(BEAM_DURATION, function()
-        alignPos:Destroy(); alignOri:Destroy()
-        CM.Ragdoll.Apply(target, SLAM_DURATION)
-        CM.Fling.Apply(target, char.HumanoidRootPart.CFrame.UpVector * -SLAM_FORCE)
-    end)
-end)</code></pre>
-      </div>
+    local weld  = Instance.new("Weld")
+    weld.Part0  = carrierTorso
+    weld.Part1  = victimRoot
+    weld.C0     = CFrame.new(-0.5, 0.25, 0) * CFrame.Angles(360, math.pi, 0)
+    weld.Parent = carrier
+    weld.Name   = "CarryWeld"
 
-    </div>
-  </div>
-</section>
+    data.carriedBy, data.carryWeld = carrier, weld
+    carrier:SetAttribute("Carrying", victim.Name)
+    victim:SetAttribute("Carried",   carrier.Name)
 
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="container">
-    <p class="section-label">Portfolio</p>
-    <h2 class="section-title">Projects</h2>
-    <p class="section-desc">Games and systems I've worked on. More coming soon.</p>
-
-    <div class="projects-grid">
-
-      <div class="project-card">
-        <div class="project-thumb t1">
-          🎯
-        </div>
-        <div class="project-body">
-          <h3>ToleHitbox — Custom Hitbox Library</h3>
-          <p>A 789-line hitbox module built from scratch. Supports server-side and client-side detection, velocity prediction for lag compensation, directional cone filtering, Bezier path movement (cubic & quadratic), pause/resume, and a state-based debug visualiser.</p>
-          <div class="project-tags">
-            <span class="tag">OOP</span>
-            <span class="tag">Spatial Queries</span>
-            <span class="tag">Bezier Paths</span>
-            <span class="tag">Velocity Prediction</span>
-            <span class="tag">Signal Pattern</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="project-card">
-        <div class="project-thumb t2">
-          ⚔️
-        </div>
-        <div class="project-body">
-          <h3>Full Combat System</h3>
-          <p>Client + server combat covering M1 combos, crits, feints, directional dashing (4 directions + air dash), block/parry with timing windows, weapon equip, and a jump override — all with server-side validation.</p>
-          <div class="project-tags">
-            <span class="tag">CombatClient</span>
-            <span class="tag">CombatService</span>
-            <span class="tag">Anti-Exploit</span>
-            <span class="tag">Input Handling</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="project-card">
-        <div class="project-thumb t3">
-          🌀
-        </div>
-        <div class="project-body">
-          <h3>Bleach-Inspired Game</h3>
-          <p>A full game with Shinigami/Quincy races, a Soul Grid system, skills with loadouts and class swaps, a mission board with NPC spawning and kill tracking, VFX management, and a service-based server that boots in dependency order.</p>
-          <div class="project-tags">
-            <span class="tag">Modules</span>
-            <span class="tag">DataStores</span>
-            <span class="tag">VFX</span>
-            <span class="tag">Missions</span>
-            <span class="tag">Skills</span>
-          </div>
-        </div>
+    -- Heartbeat watcher: if the carrier gets stunned, drop the victim.
+    local carrierCV = CM.Table[carrier]
+    if carrierCV then
+        task.delay(0.5, function()
+            if not data.carriedBy then return end
+            local conn; conn = RunService.Heartbeat:Connect(function()
+                if not carrier.Parent then conn:Disconnect(); return end
+                if carrierCV.Stunned then
+                    conn:Disconnect()
+                    KnockdownService.ReleaseCarry(carrier, victim)
+                end
+            end)
+            data.hitConn = conn
+        end)
+    end
+    return true
+end</code></pre>
       </div>
 
     </div>
@@ -809,21 +669,21 @@ end)</code></pre>
 <!-- CONTACT -->
 <section id="contact">
   <div class="container">
-    <div class="contact-card">
-      <p class="section-label">Get in touch</p>
-      <h2 class="section-title">Let's work together</h2>
+    <div class="contact-block">
+      <p class="section-label">Contact</p>
+      <h2 class="section-title">Let's build something.</h2>
       <p>
-        Have a project in mind? Looking for a scripter to join your team?
-        Hit me up on Discord or check out my Roblox profile.
+        Got a project in mind? Looking for a scripter to fix what's slow,
+        broken, or untyped? Reach out — I respond fast.
       </p>
       <div class="contact-links">
         <a class="btn btn-primary" href="https://discord.com/users/mrrami56" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 14.09 14.09 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/></svg>
-          Discord: mrrami56
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 14.09 14.09 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/></svg>
+          Discord — mrrami56
         </a>
         <a class="btn btn-outline" href="https://www.roblox.com/users/search?keyword=peely779" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M18.926 23.998 0 18.926 5.074.002 24 5.074zm-12.344-9.02 2.218-8.232 8.232 2.218-2.218 8.232z"/></svg>
-          Roblox: peely779
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.926 23.998 0 18.926 5.074.002 24 5.074zm-12.344-9.02 2.218-8.232 8.232 2.218-2.218 8.232z"/></svg>
+          Roblox — peely779
         </a>
       </div>
     </div>
@@ -832,9 +692,8 @@ end)</code></pre>
 
 <!-- FOOTER -->
 <footer>
-  <p>Built by Rami &nbsp;·&nbsp; <a href="https://www.roblox.com/users/search?keyword=peely779" target="_blank" rel="noopener">peely779</a> &nbsp;·&nbsp; Discord: mrrami56</p>
+  Built by Rami · <a href="https://www.roblox.com/users/search?keyword=peely779" target="_blank" rel="noopener">peely779</a> · Discord mrrami56
 </footer>
-
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
