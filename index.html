@@ -590,6 +590,84 @@
       animation: bar-fill 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     @keyframes bar-fill { to { transform: translateX(0); } }
+
+    /* ── FEATURED FLAGSHIP ── */
+    .featured-header {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.1rem;
+    }
+    .featured-star {
+      color: #f8c250; font-size: 0.85rem;
+      text-shadow: 0 0 10px rgba(248,194,80,0.5);
+    }
+    .featured-label-text {
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #f8c250;
+    }
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 0.65rem; margin-bottom: 2rem;
+    }
+    .feat-card {
+      background: rgba(248,194,80,0.04);
+      border: 1px solid rgba(248,194,80,0.18);
+      border-radius: 10px; padding: 1rem 1.1rem; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .feat-card:hover {
+      background: rgba(248,194,80,0.07);
+      border-color: rgba(248,194,80,0.35);
+      box-shadow: 0 0 18px rgba(248,194,80,0.1);
+    }
+    .feat-card.selected {
+      background: rgba(248,194,80,0.09);
+      border-color: rgba(248,194,80,0.5);
+      box-shadow: 0 0 24px rgba(248,194,80,0.16);
+    }
+    .feat-card-top { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .feat-name {
+      font-size: 0.88rem; font-weight: 600; letter-spacing: -0.01em;
+      margin-bottom: 0.32rem;
+      font-family: 'JetBrains Mono','Cascadia Code','Consolas',monospace;
+    }
+    .feat-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.55; margin-bottom: 0.55rem; }
+    .feat-file {
+      font-family: 'JetBrains Mono','Cascadia Code','Consolas',monospace;
+      font-size: 0.67rem; color: rgba(248,194,80,0.55);
+    }
+
+    /* ── TIER BADGES ── */
+    .tier-badge {
+      display: inline-flex; align-items: center;
+      font-family: 'JetBrains Mono','Cascadia Code','Consolas',monospace;
+      font-size: 0.6rem; font-weight: 500; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0.13rem 0.42rem;
+      border-radius: 3px; border: 1px solid; flex-shrink: 0;
+    }
+    .tier-flagship { color: #f8c250; background: rgba(248,194,80,0.1); border-color: rgba(248,194,80,0.28); }
+    .tier-core     { color: #8b9ef8; background: rgba(101,119,232,0.1); border-color: rgba(101,119,232,0.28); }
+    .tier-utility  { color: var(--muted); background: rgba(129,135,148,0.1); border-color: rgba(255,255,255,0.08); }
+
+    /* ── CATEGORY FILTER ── */
+    .cat-filter { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+    .cat-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-family: inherit; font-size: 0.78rem;
+      font-weight: 500; padding: 0.3rem 0.72rem; border-radius: 6px;
+      cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .cat-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .cat-btn.active {
+      color: var(--accent); border-color: rgba(101,119,232,0.4);
+      background: rgba(101,119,232,0.08);
+    }
+
+    /* ── PANEL META ── */
+    .panel-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.2rem; margin-bottom: 0.35rem; }
+    .panel-cat-tag {
+      font-size: 0.67rem; color: var(--muted);
+      font-family: 'JetBrains Mono','Cascadia Code','Consolas',monospace;
+    }
   </style>
 </head>
 <body>
@@ -739,13 +817,75 @@
     <p class="section-label">Code</p>
     <h2 class="section-title">Some of what I write.</h2>
 
+    <!-- Featured Flagship -->
+    <div class="featured-header">
+      <span class="featured-star">★</span>
+      <span class="featured-label-text">Flagship Systems</span>
+    </div>
+    <div class="featured-grid">
+      <div class="feat-card" data-target="0">
+        <div class="feat-card-top">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Security</span>
+        </div>
+        <div class="feat-name">AntiCheatValidator</div>
+        <p class="feat-desc">Server-side speed checks, fly detection, and position-spoof prevention with a pluggable violation handler.</p>
+        <div class="feat-file">AntiCheatValidator.lua →</div>
+      </div>
+      <div class="feat-card" data-target="1">
+        <div class="feat-card-top">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Security</span>
+        </div>
+        <div class="feat-name">SnapshotRewinder</div>
+        <p class="feat-desc">Records character positions at 20 Hz for server-side hit verification with interpolated rewind up to 300 ms.</p>
+        <div class="feat-file">SnapshotRewinder.lua →</div>
+      </div>
+      <div class="feat-card" data-target="2">
+        <div class="feat-card-top">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Backend &amp; Data</span>
+        </div>
+        <div class="feat-name">SessionManager</div>
+        <p class="feat-desc">DataStore wrapper with MemoryStore session locking, exponential backoff retry, and crash-safe auto-save.</p>
+        <div class="feat-file">SessionManager.lua →</div>
+      </div>
+      <div class="feat-card" data-target="3">
+        <div class="feat-card-top">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Architecture</span>
+        </div>
+        <div class="feat-name">ServiceLoader</div>
+        <p class="feat-desc">Dependency-sorted service boot using DFS toposort — all init() phases complete before any start() runs.</p>
+        <div class="feat-file">ServiceLoader.lua →</div>
+      </div>
+      <div class="feat-card" data-target="4">
+        <div class="feat-card-top">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Architecture</span>
+        </div>
+        <div class="feat-name">StateMachine</div>
+        <p class="feat-desc">Generic typed FSM with transition guards, enter/exit hooks, and per-state tick callbacks. Drop into any NPC or combat system.</p>
+        <div class="feat-file">StateMachine.lua →</div>
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="cat-filter">
+      <button class="cat-btn active" data-cat="all">All</button>
+      <button class="cat-btn" data-cat="security">Security</button>
+      <button class="cat-btn" data-cat="backend">Backend &amp; Data</button>
+      <button class="cat-btn" data-cat="architecture">Architecture</button>
+      <button class="cat-btn" data-cat="combat">Combat</button>
+    </div>
+
     <div class="code-nav">
       <button class="code-nav-btn" id="code-prev" aria-label="Previous">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <div class="code-nav-center">
-        <span class="code-nav-name" id="code-nav-name">Bezier hitbox</span>
-        <span class="code-nav-counter" id="code-nav-counter">1 / 11</span>
+        <span class="code-nav-name" id="code-nav-name">AntiCheatValidator</span>
+        <span class="code-nav-counter" id="code-nav-counter">1 / 15</span>
       </div>
       <button class="code-nav-btn" id="code-next" aria-label="Next">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -754,156 +894,115 @@
 
     <div class="code-panels">
 
-      <div class="code-panel active" data-panel="0">
-        <p class="code-desc">
-          Hitbox that moves along a Bézier path with an optional cone filter.
-          Cubic and quadratic share one update function. The cone check is just a dot product — no sqrt.
-        </p>
-        <div class="code-file-bar">
-          <span class="code-filename">ToleHitbox.lua</span>
+      <!-- 0 · AntiCheatValidator · security · flagship -->
+      <div class="code-panel active" data-panel="0" data-cat="security" data-name="AntiCheatValidator">
+        <div class="panel-meta">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Security &amp; Anti-Cheat</span>
         </div>
-        <pre class="code-block"><code class="language-lua">-- cubic / quadratic Bézier, both arities in one function
-local function cubicBezier(p0, p1, p2, p3, t)
-    local u = 1 - t; local tt = t * t; local uu = u * u
-    return (uu * u)     * p0
-         + (3 * uu * t) * p1
-         + (3 * u * tt) * p2
-         + (tt * t)     * p3
-end
-
--- task.defer so the final hit resolves before the hitbox cleans up
-function Hitbox:_updateBezier(dt)
-    self.BezierElapsed = math.min(self.BezierElapsed + dt, self.BezierDuration)
-    local t    = self.BezierElapsed / self.BezierDuration
-    local path = self.BezierPath
-    local pos  = if #path == 4
-        then cubicBezier(path[1], path[2], path[3], path[4], t)
-        else quadraticBezier(path[1], path[2], path[3], t)
-    if t &gt;= 1 then task.defer(self.destroy, self) end
-    return CFrame.new(pos)
-end
-
--- half-angle in degrees, one dot product per target
-function Hitbox:_passesCone(pos)
-    if not self.ConeAngle or not self.ConeOrigin then return true end
-    local cf        = self.ConeOrigin.CFrame
-    local toTarget  = (pos - cf.Position).Unit
-    local threshold = math.cos(math.rad(self.ConeAngle))
-    return cf.LookVector:Dot(toTarget) &gt;= threshold
-end</code></pre>
-      </div>
-
-      <div class="code-panel" data-panel="1">
         <p class="code-desc">
-          Client-side packet routing via a dispatch table instead of an if/elseif chain.
-          Adding a new packet type is one line. Unknown modes warn so nothing breaks silently.
+          Server-side movement validation — speed checks, fly detection, and position-spoof prevention.
+          Violations route through a pluggable handler so callers decide warn-vs-kick.
+          <code>verifyPosition</code> cross-checks a client-claimed hit position against the server's ground truth.
         </p>
         <div class="code-file-bar">
-          <span class="code-filename">ToleHitboxLocal.lua</span>
-        </div>
-        <pre class="code-block"><code class="language-lua">type Packet = { _Mode: string, _Tick: number, [string]: any }
-
-local active : { [number]: ToleHitbox.Hitbox } = {}
-
-local dispatch : { [string]: (Packet) -&gt; () } = {
-    New = function(p)
-        local hitbox    = ToleHitbox.new(p :: any)
-        active[p._Tick] = hitbox
-        ToleHitboxRemote:FireServer(p._Tick)  -- ack to server
-    end,
-    Start     = function(p) active[p._Tick]:start()              end,
-    Stop      = function(p) active[p._Tick]:stop()               end,
-    Pause     = function(p) active[p._Tick]:pause()              end,
-    Resume    = function(p) active[p._Tick]:resume()             end,
-    ClrTag    = function(p) active[p._Tick]:clearTaggedChars()   end,
-    AddIgnore = function(p) active[p._Tick]:addIgnore(p.Targets) end,
-    Destroy   = function(p)
-        if active[p._Tick] then
-            active[p._Tick]:destroy()
-            active[p._Tick] = nil
-        end
-    end,
-}
-
-ToleHitboxRemote.OnClientEvent:Connect(function(packet : Packet)
-    local handler = dispatch[packet._Mode]
-    if handler then
-        handler(packet)
-    else
-        warn(("[ToleHitboxLocal] unknown mode: %q"):format(packet._Mode))
-    end
-end)</code></pre>
-      </div>
-
-      <div class="code-panel" data-panel="2">
-        <p class="code-desc">
-          Spatial hash grid for fast AOE queries. Skips the remove/insert when an entity
-          stays in the same cell. Squared distance check so no sqrt per candidate.
-        </p>
-        <div class="code-file-bar">
-          <span class="code-filename">SpatialHashGrid.lua</span>
+          <span class="code-filename">AntiCheatValidator.lua</span>
         </div>
         <pre class="code-block"><code class="language-lua">--!strict
-local SpatialHashGrid = {}
-SpatialHashGrid.__index = SpatialHashGrid
+local Players = game:GetService("Players")
 
-export type Entity = any
-type SelfFields = {
-    cellSize : number, invSize : number,
-    cells       : { [number]: { Entity } },
-    entityCells : { [Entity]: number },
-    entityPos   : { [Entity]: Vector3 },
+local MAX_SPEED          = 32   -- studs/s; hard kick above 1.35×
+local MAX_DELTA_HEIGHT   = 18   -- studs upward in one frame
+local POSITION_TOLERANCE = 6    -- allowable client/server pos delta
+
+type Violation = {
+    kind     : string,
+    player   : Player,
+    severity : "warn" | "kick",
+    detail   : string,
 }
-export type Grid = typeof(setmetatable({} :: SelfFields, SpatialHashGrid))
+type ViolationHandler = (Violation) -&gt; ()
 
--- primes for spatial hashing (Teschner et al. 2003)
-local function hash(cx : number, cz : number) : number
-    return cx * 73856093 + cz * 19349663
+local AntiCheatValidator = {}
+local prevPositions : { [Player]: { pos: Vector3, t: number } } = {}
+local handlers      : { ViolationHandler } = {}
+
+function AntiCheatValidator.onViolation(fn: ViolationHandler)
+    table.insert(handlers, fn)
 end
 
--- skip remove/insert if entity stayed in the same cell
-function SpatialHashGrid.update(self : Grid, entity : Entity, pos : Vector3)
-    local oldPos = self.entityPos[entity]
-    if not oldPos then return self:insert(entity, pos) end
-    local inv = self.invSize
-    local cx, cz = math.floor(pos.X * inv),    math.floor(pos.Z * inv)
-    local ox, oz = math.floor(oldPos.X * inv), math.floor(oldPos.Z * inv)
-    if cx == ox and cz == oz then
-        self.entityPos[entity] = pos
-        return
+local function fire(v: Violation)
+    for _, fn in handlers do
+        local ok, err = pcall(fn, v)
+        if not ok then warn("[ACV] handler error:", err) end
     end
-    self:remove(entity); self:insert(entity, pos)
+    if v.severity == "kick" then
+        v.player:Kick(("[Anti-Cheat] %s"):format(v.kind))
+    end
 end
 
--- squared distance, no sqrt per candidate
-function SpatialHashGrid.queryRadius(
-    self : Grid, center : Vector3, radius : number
-) : { Entity }
-    local inv    = self.invSize
-    local r      = math.ceil(radius * inv)
-    local cx, cz = math.floor(center.X * inv), math.floor(center.Z * inv)
-    local r2     = radius * radius
-    local result : { Entity } = {}
-    for dx = -r, r do
-        for dz = -r, r do
-            local cell = self.cells[hash(cx + dx, cz + dz)]
-            if cell then
-                for _, entity in cell do
-                    local d = self.entityPos[entity] - center
-                    if d.X * d.X + d.Z * d.Z &lt;= r2 then
-                        table.insert(result, entity)
-                    end
-                end
+-- call once per heartbeat per player
+function AntiCheatValidator.checkMovement(player: Player)
+    local char = player.Character
+    if not char then return end
+    local hrp  = char:FindFirstChild("HumanoidRootPart") :: BasePart?
+    if not hrp then return end
+
+    local now  = os.clock()
+    local pos  = hrp.Position
+    local prev = prevPositions[player]
+
+    if prev then
+        local dt = now - prev.t
+        if dt &gt; 0 then
+            local delta  = pos - prev.pos
+            local speed  = Vector3.new(delta.X, 0, delta.Z).Magnitude / dt
+            local height = delta.Y
+
+            if speed &gt; MAX_SPEED * 1.35 then
+                fire({ kind = "SpeedHack", player = player,
+                    severity = "kick", detail = ("%.1f studs/s"):format(speed) })
+            elseif speed &gt; MAX_SPEED then
+                fire({ kind = "SpeedAnomaly", player = player,
+                    severity = "warn", detail = ("%.1f studs/s"):format(speed) })
+            end
+
+            if height &gt; MAX_DELTA_HEIGHT then
+                fire({ kind = "FlyHack", player = player,
+                    severity = "kick", detail = ("%.1f studs up"):format(height) })
             end
         end
     end
-    return result
+    prevPositions[player] = { pos = pos, t = now }
 end
 
-return SpatialHashGrid</code></pre>
+-- cross-check a client-claimed hit pos against server ground truth
+function AntiCheatValidator.verifyPosition(
+    player: Player, claimed: Vector3
+): boolean
+    local char = player.Character
+    if not char then return false end
+    local hrp  = char:FindFirstChild("HumanoidRootPart") :: BasePart?
+    if not hrp then return false end
+    local delta = (hrp.Position - claimed).Magnitude
+    if delta &gt; POSITION_TOLERANCE then
+        fire({ kind = "PositionSpoof", player = player,
+            severity = "warn", detail = ("delta %.2f"):format(delta) })
+        return false
+    end
+    return true
+end
+
+Players.PlayerRemoving:Connect(function(p) prevPositions[p] = nil end)
+return table.freeze(AntiCheatValidator)</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="3">
+      <!-- 1 · SnapshotRewinder · security · flagship -->
+      <div class="code-panel" data-panel="1" data-cat="security" data-name="SnapshotRewinder">
+        <div class="panel-meta">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Security &amp; Anti-Cheat</span>
+        </div>
         <p class="code-desc">
           Records character positions at 20Hz so the server can rewind to what the
           attacker saw at fire-time. Capped at 300ms — clients can't request older snapshots.
@@ -955,108 +1054,12 @@ end
 return table.freeze(SnapshotRewinder)</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="4">
-        <p class="code-desc">
-          Effect queue gated by a predicate — built for time-stop combat where hits
-          register mid-stop but apply when time resumes. <code>flush()</code> snapshots
-          before draining so re-entrant pushes go to a fresh queue.
-        </p>
-        <div class="code-file-bar">
-          <span class="code-filename">DeferredEffectQueue.lua</span>
+      <!-- 2 · SessionManager · backend · flagship -->
+      <div class="code-panel" data-panel="2" data-cat="backend" data-name="SessionManager">
+        <div class="panel-meta">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Backend &amp; Data</span>
         </div>
-        <pre class="code-block"><code class="language-lua">--!strict
-local DeferredEffectQueue = {}
-DeferredEffectQueue.__index = DeferredEffectQueue
-
-export type Effect&lt;T&gt;  = (T) -&gt; ()
-export type Predicate  = () -&gt; boolean
-
-type SelfFields&lt;T&gt; = {
-    name : string, queue : { T },
-    apply : Effect&lt;T&gt;, isFrozen : Predicate,
-}
-export type Queue&lt;T&gt; = typeof(setmetatable({} :: SelfFields&lt;T&gt;, DeferredEffectQueue))
-
-function DeferredEffectQueue.new&lt;T&gt;(
-    name : string, apply : Effect&lt;T&gt;, isFrozen : Predicate
-) : Queue&lt;T&gt;
-    return setmetatable({
-        name = name, queue = {}, apply = apply, isFrozen = isFrozen,
-    }, DeferredEffectQueue) :: any
-end
-
-function DeferredEffectQueue.push&lt;T&gt;(self : Queue&lt;T&gt;, effect : T)
-    if self.isFrozen() then
-        table.insert(self.queue, effect)
-    else
-        self.apply(effect)
-    end
-end
-
--- snapshot before draining so re-entrant pushes go to a fresh queue
-function DeferredEffectQueue.flush&lt;T&gt;(self : Queue&lt;T&gt;) : number
-    if #self.queue == 0 then return 0 end
-    local snapshot = self.queue
-    self.queue     = {}
-    for _, effect in snapshot do
-        local ok, err = pcall(self.apply, effect)
-        if not ok then
-            warn(string.format("[%s] effect error: %s", self.name, tostring(err)))
-        end
-    end
-    return #snapshot
-end
-
-return DeferredEffectQueue</code></pre>
-      </div>
-
-      <div class="code-panel" data-panel="5">
-        <p class="code-desc">
-          Server-side animation proxy — the server never loads AnimationTracks.
-          Stand modules call <code>:Play()</code> / <code>:Stop()</code> like normal and
-          the proxy fires the RemoteEvent. Lazy <code>__index</code> means no setup per animation key.
-        </p>
-        <div class="code-file-bar">
-          <span class="code-filename">StandManager.lua</span>
-        </div>
-        <pre class="code-block"><code class="language-lua">local AnimProxy = {}; AnimProxy.__index = AnimProxy
-
--- auto-creates proxy on first read, no setup needed per key
-local AnimTable = {}
-AnimTable.__index = function(t, key : string)
-    local proxy = setmetatable(
-        { _player = t._player, _key = key, IsPlaying = false },
-        AnimProxy
-    )
-    rawset(t, key, proxy)
-    return proxy
-end
-
-function AnimProxy:Play(fadeTime : number?, weight : number?, speed : number?)
-    self.IsPlaying = true
-    StandAction:FireClient(self._player, {
-        Action   = "PlayAnimation", AnimKey = self._key,
-        FadeTime = fadeTime, Weight = weight, Speed = speed,
-    })
-end
-
-function AnimProxy:Stop(fadeTime : number?)
-    self.IsPlaying = false
-    StandAction:FireClient(self._player, {
-        Action   = "StopAnimation", AnimKey = self._key,
-        FadeTime = fadeTime,
-    })
-end
-
-local function makeAnimTable(player : Player)
-    return setmetatable({ _player = player }, AnimTable)
-end
-
--- ctx.anims.RightPunch:Play(0.1)  -- fires RemoteEvent under the hood
--- ctx.anims.AttackPose:Stop(0.2)</code></pre>
-      </div>
-
-      <div class="code-panel" data-panel="6">
         <p class="code-desc">
           DataStore wrapper with MemoryStore session locking. Handles crash-rejoin safely,
           retries with exponential backoff, and auto-saves on an interval.
@@ -1154,64 +1157,12 @@ end)
 return table.freeze(SessionManager)</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="7">
-        <p class="code-desc">
-          Token-bucket rate limiter per player. Refills lazily on each check — no heartbeat loop.
-          Pass a higher <code>cost</code> for expensive operations.
-        </p>
-        <div class="code-file-bar">
-          <span class="code-filename">RateLimiter.lua</span>
+      <!-- 3 · ServiceLoader · architecture · flagship -->
+      <div class="code-panel" data-panel="3" data-cat="architecture" data-name="ServiceLoader">
+        <div class="panel-meta">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Architecture</span>
         </div>
-        <pre class="code-block"><code class="language-lua">--!strict
-local RateLimiter = {}
-RateLimiter.__index = RateLimiter
-
-type Bucket = { tokens: number, lastRefill: number }
-type Self   = { rate: number, burst: number, buckets: { [Player]: Bucket } }
-export type Limiter = typeof(setmetatable({} :: Self, RateLimiter))
-
-function RateLimiter.new(rate: number, burst: number): Limiter
-    return setmetatable({ rate = rate, burst = burst, buckets = {} }, RateLimiter) :: any
-end
-
--- lazy refill, no per-tick loop
-local function refill(bucket: Bucket, rate: number, burst: number)
-    local now          = os.clock()
-    local elapsed      = now - bucket.lastRefill
-    bucket.tokens      = math.min(burst, bucket.tokens + elapsed * rate)
-    bucket.lastRefill  = now
-end
-
--- false if rate-limited, cost defaults to 1
-function RateLimiter.check(self: Limiter, player: Player, cost: number?): boolean
-    local c = cost or 1
-    local bucket = self.buckets[player]
-    if not bucket then
-        bucket = { tokens = self.burst, lastRefill = os.clock() }
-        self.buckets[player] = bucket
-    end
-    refill(bucket, self.rate, self.burst)
-    if bucket.tokens &lt; c then return false end
-    bucket.tokens -= c
-    return true
-end
-
-function RateLimiter.remove(self: Limiter, player: Player)
-    self.buckets[player] = nil
-end
-
-return RateLimiter
-
--- Usage — 5 requests/s, burst of 15, expensive ops cost 3:
--- local limiter = RateLimiter.new(5, 15)
--- remote.OnServerEvent:Connect(function(player, kind, ...)
---     local cost = if kind == "BigOp" then 3 else 1
---     if not limiter:check(player, cost) then return end
---     handleRequest(player, kind, ...)
--- end)</code></pre>
-      </div>
-
-      <div class="code-panel" data-panel="8">
         <p class="code-desc">
           Sorts services by their declared dependencies and boots in order —
           all <code>:init()</code> first, then all <code>:start()</code>.
@@ -1277,7 +1228,432 @@ end
 return ServiceLoader</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="9">
+      <!-- 4 · StateMachine · architecture · flagship -->
+      <div class="code-panel" data-panel="4" data-cat="architecture" data-name="StateMachine">
+        <div class="panel-meta">
+          <span class="tier-badge tier-flagship">Flagship</span>
+          <span class="panel-cat-tag">Architecture</span>
+        </div>
+        <p class="code-desc">
+          Generic typed FSM with transition guards, enter/exit hooks, and per-state tick callbacks.
+          <code>:send()</code> returns <strong>false</strong> (not an error) when a guard blocks — so callers can react cleanly.
+          Drop into any NPC, combat, or UI flow.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">StateMachine.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+type StateId  = string
+type Callback = () -&gt; ()
+type Guard    = () -&gt; boolean
+
+export type Transition = {
+    to      : StateId,
+    guard   : Guard?,
+    onExit  : Callback?,
+    onEnter : Callback?,
+}
+export type StateConfig = {
+    onEnter  : Callback?,
+    onExit   : Callback?,
+    onTick   : ((dt: number) -&gt; ())?,
+    transitions : { [string]: Transition },
+}
+type Self = { _states: { [StateId]: StateConfig }, _current: StateId }
+export type Machine = typeof(setmetatable({} :: Self, {} :: { __index: any }))
+
+local StateMachine = {}
+StateMachine.__index = StateMachine
+
+function StateMachine.new(initial: StateId, states: { [StateId]: StateConfig }): Machine
+    assert(states[initial], "Initial state not found: " .. initial)
+    local self = setmetatable({ _states = states, _current = initial }, StateMachine) :: any
+    local cfg  = states[initial]
+    if cfg.onEnter then cfg.onEnter() end
+    return self
+end
+
+-- false if guard blocked; errors if event unknown in current state
+function StateMachine.send(self: Machine, event: string): boolean
+    local s   = self :: any
+    local cfg = s._states[s._current]
+    local tr  = cfg.transitions[event]
+    assert(tr, ("[FSM] no '%s' from '%s'"):format(event, s._current))
+    if tr.guard and not tr.guard() then return false end
+
+    if tr.onExit  then tr.onExit()  end
+    if cfg.onExit then cfg.onExit() end
+    s._current = tr.to
+    local next = s._states[s._current]
+    if next.onEnter then next.onEnter() end
+    if tr.onEnter   then tr.onEnter()   end
+    return true
+end
+
+function StateMachine.tick(self: Machine, dt: number)
+    local s = self :: any; local cfg = s._states[s._current]
+    if cfg.onTick then cfg.onTick(dt) end
+end
+
+function StateMachine.state(self: Machine): StateId
+    return (self :: any)._current
+end
+
+return StateMachine
+
+-- local npc = StateMachine.new("Idle", {
+--   Idle     = { transitions = { spotted = { to = "Chase" } } },
+--   Chase    = { onTick = moveTo, transitions = {
+--                  inRange = { to = "Attack" }, lost = { to = "Idle" } } },
+--   Attack   = { onEnter = swing, transitions = { done = { to = "Cooldown" } } },
+--   Cooldown = { onEnter = startTimer, transitions = { ready = { to = "Idle" } } },
+-- })</code></pre>
+      </div>
+
+      <!-- 5 · RateLimiter · security · core -->
+      <div class="code-panel" data-panel="5" data-cat="security" data-name="RateLimiter">
+        <div class="panel-meta">
+          <span class="tier-badge tier-core">Core</span>
+          <span class="panel-cat-tag">Security</span>
+        </div>
+        <p class="code-desc">
+          Token-bucket rate limiter per player. Refills lazily on each check — no heartbeat loop.
+          Pass a higher <code>cost</code> for expensive operations.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">RateLimiter.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+local RateLimiter = {}
+RateLimiter.__index = RateLimiter
+
+type Bucket = { tokens: number, lastRefill: number }
+type Self   = { rate: number, burst: number, buckets: { [Player]: Bucket } }
+export type Limiter = typeof(setmetatable({} :: Self, RateLimiter))
+
+function RateLimiter.new(rate: number, burst: number): Limiter
+    return setmetatable({ rate = rate, burst = burst, buckets = {} }, RateLimiter) :: any
+end
+
+-- lazy refill, no per-tick loop
+local function refill(bucket: Bucket, rate: number, burst: number)
+    local now          = os.clock()
+    local elapsed      = now - bucket.lastRefill
+    bucket.tokens      = math.min(burst, bucket.tokens + elapsed * rate)
+    bucket.lastRefill  = now
+end
+
+-- false if rate-limited, cost defaults to 1
+function RateLimiter.check(self: Limiter, player: Player, cost: number?): boolean
+    local c = cost or 1
+    local bucket = self.buckets[player]
+    if not bucket then
+        bucket = { tokens = self.burst, lastRefill = os.clock() }
+        self.buckets[player] = bucket
+    end
+    refill(bucket, self.rate, self.burst)
+    if bucket.tokens &lt; c then return false end
+    bucket.tokens -= c
+    return true
+end
+
+function RateLimiter.remove(self: Limiter, player: Player)
+    self.buckets[player] = nil
+end
+
+return RateLimiter
+
+-- local limiter = RateLimiter.new(5, 15)
+-- remote.OnServerEvent:Connect(function(player, kind, ...)
+--     local cost = if kind == "BigOp" then 3 else 1
+--     if not limiter:check(player, cost) then return end
+--     handleRequest(player, kind, ...)
+-- end)</code></pre>
+      </div>
+
+      <!-- 6 · NetworkSanitizer · security · core -->
+      <div class="code-panel" data-panel="6" data-cat="security" data-name="NetworkSanitizer">
+        <div class="panel-meta">
+          <span class="tier-badge tier-core">Core</span>
+          <span class="panel-cat-tag">Security</span>
+        </div>
+        <p class="code-desc">
+          Declarative schema validates RemoteEvent payloads — type, numeric range, and enum checks —
+          before any handler logic runs. Returns a cleaned payload on success so callers never touch raw input.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">NetworkSanitizer.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+type FieldRule = { type: string, min: number?, max: number?, enum: { any }? }
+type Schema    = { [string]: FieldRule }
+
+local NetworkSanitizer = {}
+
+local function checkField(
+    key: string, value: any, rule: FieldRule
+): (boolean, string?)
+    if type(value) ~= rule.type then
+        return false,
+            ("%s: expected %s, got %s"):format(key, rule.type, type(value))
+    end
+    if rule.type == "number" then
+        if rule.min and value &lt; rule.min then
+            return false, ("%s: %g &lt; min %g"):format(key, value, rule.min)
+        end
+        if rule.max and value &gt; rule.max then
+            return false, ("%s: %g &gt; max %g"):format(key, value, rule.max)
+        end
+    end
+    if rule.enum then
+        local found = false
+        for _, allowed in rule.enum do
+            if value == allowed then found = true; break end
+        end
+        if not found then
+            return false, ("%s: value not in allowed set"):format(key)
+        end
+    end
+    return true, nil
+end
+
+-- (true, cleanedPayload) or (false, errorString)
+function NetworkSanitizer.validate(
+    schema: Schema, payload: { [string]: any }
+): (boolean, { [string]: any } | string)
+    if type(payload) ~= "table" then
+        return false, "payload must be a table"
+    end
+    local cleaned: { [string]: any } = {}
+    for key, rule in schema do
+        local value = payload[key]
+        if value == nil then
+            return false, ("missing required field: %s"):format(key)
+        end
+        local ok, err = checkField(key, value, rule)
+        if not ok then return false, err :: string end
+        cleaned[key] = value
+    end
+    return true, cleaned
+end
+
+return NetworkSanitizer
+
+-- local SCHEMA: Schema = {
+--     targetId = { type = "number", min = 1 },
+--     combo    = { type = "number", min = 1, max = 10 },
+--     hitType  = { type = "string", enum = { "light", "heavy", "special" } },
+-- }
+-- remote.OnServerEvent:Connect(function(player, raw)
+--     local ok, data = NetworkSanitizer.validate(SCHEMA, raw)
+--     if not ok then warn(player.Name, "bad packet:", data); return end
+--     handleAttack(player, data)
+-- end)</code></pre>
+      </div>
+
+      <!-- 7 · DataMigrator · backend · core -->
+      <div class="code-panel" data-panel="7" data-cat="backend" data-name="DataMigrator">
+        <div class="panel-meta">
+          <span class="tier-badge tier-core">Core</span>
+          <span class="panel-cat-tag">Backend &amp; Data</span>
+        </div>
+        <p class="code-desc">
+          Schema versioning for player data — register per-version migration functions and
+          <code>migrate()</code> runs them in ascending order on load.
+          Forward-only: if stored version exceeds current, it errors rather than silently corrupting data.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">DataMigrator.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+type Migrator = (data: { [string]: any }) -&gt; { [string]: any }
+
+local DataMigrator = {}
+local migrations   : { [number]: Migrator } = {}
+local CURRENT_VERSION = 0
+
+function DataMigrator.register(version: number, fn: Migrator)
+    assert(not migrations[version], ("v%d already registered"):format(version))
+    migrations[version] = fn
+    if version &gt; CURRENT_VERSION then CURRENT_VERSION = version end
+end
+
+-- runs all pending migrations in ascending version order
+function DataMigrator.migrate(raw: { [string]: any }): { [string]: any }
+    local data = table.clone(raw)
+    local from = (data.__version :: number?) or 0
+    if from == CURRENT_VERSION then return data end
+    assert(from &lt;= CURRENT_VERSION,
+        ("Data v%d &gt; current v%d — downgrade not supported"):format(from, CURRENT_VERSION))
+
+    for v = from + 1, CURRENT_VERSION do
+        local fn = migrations[v]
+        if fn then
+            local ok, result = pcall(fn, data)
+            if not ok then
+                error(("[DataMigrator] v%d failed: %s"):format(v, tostring(result)))
+            end
+            data = result
+            data.__version = v
+        end
+    end
+    return data
+end
+
+function DataMigrator.currentVersion(): number
+    return CURRENT_VERSION
+end
+
+return table.freeze(DataMigrator)
+
+-- DataMigrator.register(1, function(d)   -- v0→v1: rename coins → gold
+--     d.gold = d.coins or 0; d.coins = nil; return d
+-- end)
+-- DataMigrator.register(2, function(d)   -- v1→v2: inventory becomes a table
+--     d.inventory = d.inventory or {}; return d
+-- end)
+-- local safe = DataMigrator.migrate(rawDataFromStore)</code></pre>
+      </div>
+
+      <!-- 8 · SpatialHashGrid · combat · core -->
+      <div class="code-panel" data-panel="8" data-cat="combat" data-name="SpatialHashGrid">
+        <div class="panel-meta">
+          <span class="tier-badge tier-core">Core</span>
+          <span class="panel-cat-tag">Combat</span>
+        </div>
+        <p class="code-desc">
+          Spatial hash grid for fast AOE queries. Skips the remove/insert when an entity
+          stays in the same cell. Squared distance check so no sqrt per candidate.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">SpatialHashGrid.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+local SpatialHashGrid = {}
+SpatialHashGrid.__index = SpatialHashGrid
+
+export type Entity = any
+type SelfFields = {
+    cellSize : number, invSize : number,
+    cells       : { [number]: { Entity } },
+    entityCells : { [Entity]: number },
+    entityPos   : { [Entity]: Vector3 },
+}
+export type Grid = typeof(setmetatable({} :: SelfFields, SpatialHashGrid))
+
+-- primes for spatial hashing (Teschner et al. 2003)
+local function hash(cx : number, cz : number) : number
+    return cx * 73856093 + cz * 19349663
+end
+
+-- skip remove/insert if entity stayed in the same cell
+function SpatialHashGrid.update(self : Grid, entity : Entity, pos : Vector3)
+    local oldPos = self.entityPos[entity]
+    if not oldPos then return self:insert(entity, pos) end
+    local inv = self.invSize
+    local cx, cz = math.floor(pos.X * inv),    math.floor(pos.Z * inv)
+    local ox, oz = math.floor(oldPos.X * inv), math.floor(oldPos.Z * inv)
+    if cx == ox and cz == oz then
+        self.entityPos[entity] = pos
+        return
+    end
+    self:remove(entity); self:insert(entity, pos)
+end
+
+-- squared distance, no sqrt per candidate
+function SpatialHashGrid.queryRadius(
+    self : Grid, center : Vector3, radius : number
+) : { Entity }
+    local inv    = self.invSize
+    local r      = math.ceil(radius * inv)
+    local cx, cz = math.floor(center.X * inv), math.floor(center.Z * inv)
+    local r2     = radius * radius
+    local result : { Entity } = {}
+    for dx = -r, r do
+        for dz = -r, r do
+            local cell = self.cells[hash(cx + dx, cz + dz)]
+            if cell then
+                for _, entity in cell do
+                    local d = self.entityPos[entity] - center
+                    if d.X * d.X + d.Z * d.Z &lt;= r2 then
+                        table.insert(result, entity)
+                    end
+                end
+            end
+        end
+    end
+    return result
+end
+
+return SpatialHashGrid</code></pre>
+      </div>
+
+      <!-- 9 · DeferredEffectQueue · architecture · core -->
+      <div class="code-panel" data-panel="9" data-cat="architecture" data-name="DeferredEffectQueue">
+        <div class="panel-meta">
+          <span class="tier-badge tier-core">Core</span>
+          <span class="panel-cat-tag">Architecture</span>
+        </div>
+        <p class="code-desc">
+          Effect queue gated by a predicate — built for time-stop combat where hits
+          register mid-stop but apply when time resumes. <code>flush()</code> snapshots
+          before draining so re-entrant pushes go to a fresh queue.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">DeferredEffectQueue.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">--!strict
+local DeferredEffectQueue = {}
+DeferredEffectQueue.__index = DeferredEffectQueue
+
+export type Effect&lt;T&gt;  = (T) -&gt; ()
+export type Predicate  = () -&gt; boolean
+
+type SelfFields&lt;T&gt; = {
+    name : string, queue : { T },
+    apply : Effect&lt;T&gt;, isFrozen : Predicate,
+}
+export type Queue&lt;T&gt; = typeof(setmetatable({} :: SelfFields&lt;T&gt;, DeferredEffectQueue))
+
+function DeferredEffectQueue.new&lt;T&gt;(
+    name : string, apply : Effect&lt;T&gt;, isFrozen : Predicate
+) : Queue&lt;T&gt;
+    return setmetatable({
+        name = name, queue = {}, apply = apply, isFrozen = isFrozen,
+    }, DeferredEffectQueue) :: any
+end
+
+function DeferredEffectQueue.push&lt;T&gt;(self : Queue&lt;T&gt;, effect : T)
+    if self.isFrozen() then
+        table.insert(self.queue, effect)
+    else
+        self.apply(effect)
+    end
+end
+
+-- snapshot before draining so re-entrant pushes go to a fresh queue
+function DeferredEffectQueue.flush&lt;T&gt;(self : Queue&lt;T&gt;) : number
+    if #self.queue == 0 then return 0 end
+    local snapshot = self.queue
+    self.queue     = {}
+    for _, effect in snapshot do
+        local ok, err = pcall(self.apply, effect)
+        if not ok then
+            warn(string.format("[%s] effect error: %s", self.name, tostring(err)))
+        end
+    end
+    return #snapshot
+end
+
+return DeferredEffectQueue</code></pre>
+      </div>
+
+      <!-- 10 · Signal · architecture · core -->
+      <div class="code-panel" data-panel="10" data-cat="architecture" data-name="Signal">
+        <div class="panel-meta">
+          <span class="tier-badge tier-core">Core</span>
+          <span class="panel-cat-tag">Architecture</span>
+        </div>
         <p class="code-desc">
           Typed signal — connect, once, fire, disconnect. Connections return a handle
           so callers own their lifetime. <code>once()</code> auto-disconnects after the first fire.
@@ -1336,7 +1712,154 @@ end
 return Signal</code></pre>
       </div>
 
-      <div class="code-panel" data-panel="10">
+      <!-- 11 · BezierHitbox · combat · utility -->
+      <div class="code-panel" data-panel="11" data-cat="combat" data-name="BezierHitbox">
+        <div class="panel-meta">
+          <span class="tier-badge tier-utility">Utility</span>
+          <span class="panel-cat-tag">Combat</span>
+        </div>
+        <p class="code-desc">
+          Hitbox that moves along a Bézier path with an optional cone filter.
+          Cubic and quadratic share one update function. The cone check is just a dot product — no sqrt.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">ToleHitbox.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">-- cubic / quadratic Bézier, both arities in one function
+local function cubicBezier(p0, p1, p2, p3, t)
+    local u = 1 - t; local tt = t * t; local uu = u * u
+    return (uu * u)     * p0
+         + (3 * uu * t) * p1
+         + (3 * u * tt) * p2
+         + (tt * t)     * p3
+end
+
+-- task.defer so the final hit resolves before the hitbox cleans up
+function Hitbox:_updateBezier(dt)
+    self.BezierElapsed = math.min(self.BezierElapsed + dt, self.BezierDuration)
+    local t    = self.BezierElapsed / self.BezierDuration
+    local path = self.BezierPath
+    local pos  = if #path == 4
+        then cubicBezier(path[1], path[2], path[3], path[4], t)
+        else quadraticBezier(path[1], path[2], path[3], t)
+    if t &gt;= 1 then task.defer(self.destroy, self) end
+    return CFrame.new(pos)
+end
+
+-- half-angle in degrees, one dot product per target
+function Hitbox:_passesCone(pos)
+    if not self.ConeAngle or not self.ConeOrigin then return true end
+    local cf        = self.ConeOrigin.CFrame
+    local toTarget  = (pos - cf.Position).Unit
+    local threshold = math.cos(math.rad(self.ConeAngle))
+    return cf.LookVector:Dot(toTarget) &gt;= threshold
+end</code></pre>
+      </div>
+
+      <!-- 12 · HitboxDispatch · combat · utility -->
+      <div class="code-panel" data-panel="12" data-cat="combat" data-name="HitboxDispatch">
+        <div class="panel-meta">
+          <span class="tier-badge tier-utility">Utility</span>
+          <span class="panel-cat-tag">Combat</span>
+        </div>
+        <p class="code-desc">
+          Client-side packet routing via a dispatch table instead of an if/elseif chain.
+          Adding a new packet type is one line. Unknown modes warn so nothing breaks silently.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">ToleHitboxLocal.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">type Packet = { _Mode: string, _Tick: number, [string]: any }
+
+local active : { [number]: ToleHitbox.Hitbox } = {}
+
+local dispatch : { [string]: (Packet) -&gt; () } = {
+    New = function(p)
+        local hitbox    = ToleHitbox.new(p :: any)
+        active[p._Tick] = hitbox
+        ToleHitboxRemote:FireServer(p._Tick)  -- ack to server
+    end,
+    Start     = function(p) active[p._Tick]:start()              end,
+    Stop      = function(p) active[p._Tick]:stop()               end,
+    Pause     = function(p) active[p._Tick]:pause()              end,
+    Resume    = function(p) active[p._Tick]:resume()             end,
+    ClrTag    = function(p) active[p._Tick]:clearTaggedChars()   end,
+    AddIgnore = function(p) active[p._Tick]:addIgnore(p.Targets) end,
+    Destroy   = function(p)
+        if active[p._Tick] then
+            active[p._Tick]:destroy()
+            active[p._Tick] = nil
+        end
+    end,
+}
+
+ToleHitboxRemote.OnClientEvent:Connect(function(packet : Packet)
+    local handler = dispatch[packet._Mode]
+    if handler then
+        handler(packet)
+    else
+        warn(("[ToleHitboxLocal] unknown mode: %q"):format(packet._Mode))
+    end
+end)</code></pre>
+      </div>
+
+      <!-- 13 · AnimProxy · combat · utility -->
+      <div class="code-panel" data-panel="13" data-cat="combat" data-name="AnimProxy">
+        <div class="panel-meta">
+          <span class="tier-badge tier-utility">Utility</span>
+          <span class="panel-cat-tag">Combat</span>
+        </div>
+        <p class="code-desc">
+          Server-side animation proxy — the server never loads AnimationTracks.
+          Stand modules call <code>:Play()</code> / <code>:Stop()</code> like normal and
+          the proxy fires the RemoteEvent. Lazy <code>__index</code> means no setup per animation key.
+        </p>
+        <div class="code-file-bar">
+          <span class="code-filename">StandManager.lua</span>
+        </div>
+        <pre class="code-block"><code class="language-lua">local AnimProxy = {}; AnimProxy.__index = AnimProxy
+
+-- auto-creates proxy on first read, no setup needed per key
+local AnimTable = {}
+AnimTable.__index = function(t, key : string)
+    local proxy = setmetatable(
+        { _player = t._player, _key = key, IsPlaying = false },
+        AnimProxy
+    )
+    rawset(t, key, proxy)
+    return proxy
+end
+
+function AnimProxy:Play(fadeTime : number?, weight : number?, speed : number?)
+    self.IsPlaying = true
+    StandAction:FireClient(self._player, {
+        Action   = "PlayAnimation", AnimKey = self._key,
+        FadeTime = fadeTime, Weight = weight, Speed = speed,
+    })
+end
+
+function AnimProxy:Stop(fadeTime : number?)
+    self.IsPlaying = false
+    StandAction:FireClient(self._player, {
+        Action   = "StopAnimation", AnimKey = self._key,
+        FadeTime = fadeTime,
+    })
+end
+
+local function makeAnimTable(player : Player)
+    return setmetatable({ _player = player }, AnimTable)
+end
+
+-- ctx.anims.RightPunch:Play(0.1)  -- fires RemoteEvent under the hood
+-- ctx.anims.AttackPose:Stop(0.2)</code></pre>
+      </div>
+
+      <!-- 14 · Cache · backend · utility -->
+      <div class="code-panel" data-panel="14" data-cat="backend" data-name="Cache">
+        <div class="panel-meta">
+          <span class="tier-badge tier-utility">Utility</span>
+          <span class="panel-cat-tag">Backend &amp; Data</span>
+        </div>
         <p class="code-desc">
           TTL cache for expensive lookups — DataStore reads, HttpService responses, computed values.
           Entries expire after <code>ttl</code> seconds. Eviction is lazy: stale keys are
@@ -1409,6 +1932,7 @@ return Cache
   </div>
 </section>
 
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="container" data-reveal>
@@ -1463,32 +1987,70 @@ return Cache
 
   // Code slider
   (function () {
-    const panels  = document.querySelectorAll('.code-panel');
-    const nameEl  = document.getElementById('code-nav-name');
-    const ctrEl   = document.getElementById('code-nav-counter');
-    const names   = [
-      'Bezier hitbox', 'Hitbox dispatch', 'SpatialHashGrid',
-      'SnapshotRewinder', 'DeferredEffectQueue', 'AnimProxy',
-      'SessionManager', 'RateLimiter', 'ServiceLoader',
-      'Signal', 'Cache',
-    ];
-    let current = 0;
+    const panels    = Array.from(document.querySelectorAll('.code-panel'));
+    const nameEl    = document.getElementById('code-nav-name');
+    const ctrEl     = document.getElementById('code-nav-counter');
+    const catBtns   = document.querySelectorAll('.cat-btn');
+    const featCards = document.querySelectorAll('.feat-card');
 
-    function goTo(i) {
-      panels[current].classList.remove('active');
-      current = ((i % panels.length) + panels.length) % panels.length;
-      panels[current].classList.add('active');
-      nameEl.textContent = names[current];
-      ctrEl.textContent  = (current + 1) + ' / ' + panels.length;
+    let current  = 0;
+    let activeCat = 'all';
+
+    function getVisible() {
+      return panels.filter(p => activeCat === 'all' || p.dataset.cat === activeCat);
     }
 
-    document.getElementById('code-prev').addEventListener('click', () => goTo(current - 1));
-    document.getElementById('code-next').addEventListener('click', () => goTo(current + 1));
+    function showPanel(globalIdx) {
+      panels[current].classList.remove('active');
+      current = globalIdx;
+      panels[current].classList.add('active');
+      nameEl.textContent = panels[current].dataset.name;
+      const vis = getVisible();
+      const pos = vis.indexOf(panels[current]);
+      ctrEl.textContent = (pos + 1) + ' / ' + vis.length;
+      featCards.forEach(c =>
+        c.classList.toggle('selected', parseInt(c.dataset.target) === current)
+      );
+    }
+
+    function stepVisible(delta) {
+      const vis = getVisible();
+      const pos = vis.indexOf(panels[current]);
+      const next = ((pos + delta) % vis.length + vis.length) % vis.length;
+      showPanel(panels.indexOf(vis[next]));
+    }
+
+    function setCategory(cat) {
+      activeCat = cat;
+      catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+      const vis = getVisible();
+      if (!vis.includes(panels[current])) {
+        showPanel(panels.indexOf(vis[0]));
+      } else {
+        const pos = vis.indexOf(panels[current]);
+        ctrEl.textContent = (pos + 1) + ' / ' + vis.length;
+      }
+    }
+
+    showPanel(0);
+
+    document.getElementById('code-prev').addEventListener('click', () => stepVisible(-1));
+    document.getElementById('code-next').addEventListener('click', () => stepVisible(1));
     document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft')  goTo(current - 1);
-      if (e.key === 'ArrowRight') goTo(current + 1);
+      if (e.key === 'ArrowLeft')  stepVisible(-1);
+      if (e.key === 'ArrowRight') stepVisible(1);
+    });
+    catBtns.forEach(btn => btn.addEventListener('click', () => setCategory(btn.dataset.cat)));
+    featCards.forEach(card => {
+      card.addEventListener('click', () => {
+        activeCat = 'all';
+        catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === 'all'));
+        showPanel(parseInt(card.dataset.target));
+      });
     });
   })();
+
+
 
   // Scroll-reveal
   const revealObserver = new IntersectionObserver(
