@@ -213,6 +213,7 @@
     section { padding: 6rem 1.5rem; position: relative; }
 
     .container { max-width: 880px; margin: 0 auto; }
+    #code .container { max-width: 1100px; }
 
     .section-label {
       font-size: 0.72rem;
@@ -395,7 +396,16 @@
       overflow-x: auto;
       padding: 1.4rem 1.5rem !important;
       backdrop-filter: blur(6px);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
     }
+    .code-block::-webkit-scrollbar { height: 3px; width: 3px; }
+    .code-block::-webkit-scrollbar-track { background: transparent; }
+    .code-block::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.12);
+      border-radius: 2px;
+    }
+    .code-block::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 
     .code-block code {
       font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
@@ -676,7 +686,7 @@
       align-items: flex-start;
     }
     .explorer {
-      width: 222px;
+      width: 195px;
       flex-shrink: 0;
       background: rgba(8, 10, 16, 0.88);
       border: 1px solid var(--border);
@@ -947,6 +957,7 @@
           </div>
           <div class="exp-folder-body">
             <div class="exp-item flagship" data-panel="2"><span class="stype-icon si-script"></span>SessionManager</div>
+            <div class="exp-item flagship" data-panel="15"><span class="stype-icon si-module"></span>PlayerDB</div>
             <div class="exp-item"          data-panel="7"><span class="stype-icon si-module"></span>DataMigrator</div>
             <div class="exp-item utility"  data-panel="14"><span class="stype-icon si-module"></span>Cache</div>
           </div>
@@ -1948,6 +1959,133 @@ return Cache
 --     if ok then httpCache:set(url, res) end
 --     return ok and res or nil
 -- end</code></pre>
+          </div>
+
+          <!-- 15 · PlayerDB -->
+          <div class="code-panel" data-panel="15">
+            <div class="panel-meta">
+              <span class="stype-badge stype-module"><span class="stype-dot si-module"></span>ModuleScript</span>
+              <span class="panel-cat-tag">Backend &amp; Data</span>
+            </div>
+            <p class="code-desc">
+              Schema-driven player database — define fields with defaults and validators, then call
+              <code>:get()</code> / <code>:set()</code> like a typed key-value store.
+              Dirty tracking skips unnecessary writes. <code>:onChange()</code> fires callbacks
+              when a field changes, decoupling systems from the data layer.
+            </p>
+            <div class="code-file-bar"><span class="code-filename">PlayerDB.lua</span></div>
+            <pre class="code-block"><code class="language-lua">--!strict
+local DataStoreService = game:GetService("DataStoreService")
+local Players          = game:GetService("Players")
+
+type FieldDef = { default: any, validate: ((any) -&gt; boolean)? }
+export type Schema  = { [string]: FieldDef }
+export type Record  = { [string]: any }
+type ChangeHandler  = (player: Player, new: any, old: any) -&gt; ()
+
+type Cache = { record: Record, dirty: boolean }
+type Self  = {
+    _store    : DataStore,
+    _schema   : Schema,
+    _cache    : { [Player]: Cache },
+    _onChange : { [string]: { ChangeHandler } },
+}
+export type DB = typeof(setmetatable({} :: Self, {} :: { __index: any }))
+
+local PlayerDB = {}
+PlayerDB.__index = PlayerDB
+
+function PlayerDB.new(name: string, version: number, schema: Schema): DB
+    return setmetatable({
+        _store    = DataStoreService:GetDataStore(name .. "_v" .. version),
+        _schema   = schema,
+        _cache    = {},
+        _onChange = {},
+    }, PlayerDB) :: any
+end
+
+local function makeDefault(schema: Schema): Record
+    local rec: Record = {}
+    for k, def in schema do rec[k] = def.default end
+    return rec
+end
+
+function PlayerDB.load(self: DB, player: Player): boolean
+    local s   = self :: any
+    local ok, raw = pcall(s._store.GetAsync, s._store, tostring(player.UserId))
+    if not ok then return false end
+    local rec = makeDefault(s._schema)
+    if type(raw) == "table" then
+        for k in s._schema do
+            if raw[k] ~= nil then rec[k] = raw[k] end
+        end
+    end
+    s._cache[player] = { record = rec, dirty = false }
+    return true
+end
+
+function PlayerDB.get(self: DB, player: Player, key: string): any
+    local cache = (self :: any)._cache[player]
+    return cache and cache.record[key]
+end
+
+function PlayerDB.set(self: DB, player: Player, key: string, value: any): boolean
+    local s     = self :: any
+    local cache = s._cache[player]
+    if not cache then return false end
+    local def = s._schema[key]
+    if not def then return false end
+    if def.validate and not def.validate(value) then return false end
+    local old = cache.record[key]
+    if old == value then return true end          -- skip if unchanged
+    cache.record[key] = value
+    cache.dirty       = true
+    for _, fn in (s._onChange[key] or {}) do
+        task.spawn(fn, player, value, old)
+    end
+    return true
+end
+
+function PlayerDB.increment(self: DB, player: Player, key: string, amount: number?): number?
+    local current = PlayerDB.get(self, player, key)
+    if type(current) ~= "number" then return nil end
+    local next = current + (amount or 1)
+    return PlayerDB.set(self, player, key, next) and next or nil
+end
+
+function PlayerDB.save(self: DB, player: Player): boolean
+    local s     = self :: any
+    local cache = s._cache[player]
+    if not cache then return true end
+    if not cache.dirty then return true end       -- nothing changed, skip write
+    local ok = pcall(s._store.SetAsync, s._store, tostring(player.UserId), cache.record)
+    if ok then cache.dirty = false end
+    return ok
+end
+
+function PlayerDB.onChange(self: DB, key: string, fn: ChangeHandler)
+    local s = self :: any
+    if not s._onChange[key] then s._onChange[key] = {} end
+    table.insert(s._onChange[key], fn)
+end
+
+function PlayerDB.unload(self: DB, player: Player)
+    PlayerDB.save(self, player)
+    ;(self :: any)._cache[player] = nil
+end
+
+return PlayerDB
+
+-- local db = PlayerDB.new("PlayerData", 1, {
+--     gold   = { default = 0,  validate = function(v) return type(v)=="number" and v &gt;= 0 end },
+--     level  = { default = 1,  validate = function(v) return type(v)=="number" and v &gt;= 1 end },
+--     wins   = { default = 0 },
+-- })
+-- db:onChange("level", function(p, new, old)
+--     print(p.Name, "leveled up:", old, "→", new)
+-- end)
+-- Players.PlayerAdded:Connect(function(p)   db:load(p)   end)
+-- Players.PlayerRemoving:Connect(function(p) db:unload(p) end)</code></pre>
           </div>
 
         </div>
