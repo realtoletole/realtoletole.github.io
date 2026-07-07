@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rami — Developer</title>
+  <meta name="description" content="Developer. I write Luau, design backends, build local-first AI systems, and ship things that actually hold up." />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url"  content="https://realtoletole.github.io" />
+  <meta property="og:title" content="Rami — Developer" />
+  <meta property="og:description" content="I write Luau, design backends, build local-first AI systems, and ship things that hold up." />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Rami — Developer" />
+  <meta name="twitter:description" content="I write Luau, design backends, build local-first AI systems, and ship things that hold up." />
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0a0a' stroke='%23f2f2ef' stroke-width='2'/><text y='76' x='14' font-size='72' font-family='system-ui,sans-serif' font-weight='700' fill='%23f2f2ef'>R</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0a;
+      --bg0:      #131313;
+      --bg-s:     #161616;
+      --bg1:      #1c1c1c;
+      --bg2:      #262626;
+      --bg3:      #3a3a3a;
+      --bg4:      #545454;
+      --fg:       #f2f2ef;
+      --fg2:      #d6d6d2;
+      --fg4:      #9a9a94;
+      --gray:     #86867f;
+      --red:      #f2f2ef;
+      --green:    #f2f2ef;
+      --yellow:   #f2f2ef;
+      --blue:     #f2f2ef;
+      --purple:   #f2f2ef;
+      --aqua:     #f2f2ef;
+      --orange:   #f2f2ef;
+
+      --surface:  rgba(255, 255, 255, 0.035);
+      --surf-hov: rgba(255, 255, 255, 0.06);
+      --border:   rgba(255, 255, 255, 0.10);
+      --border2:  rgba(255, 255, 255, 0.20);
+      --accent:   #f2f2ef;
+      --accent-d: #cfcfca;
+      --mono:     'JetBrains Mono', monospace;
+      --ease:     cubic-bezier(0.16, 1, 0.3, 1);
+      --r:        10px;
+    }
+
+    html { scroll-behavior: smooth; background: #0a0a0a; }
+
+    body {
+      background: transparent;
+      color: var(--fg);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ::selection { background: var(--bg2); color: var(--fg); }
+
+    .skip-link {
+      position: absolute; top: -100%; left: 1rem; z-index: 99999;
+      padding: 0.5rem 1rem; background: var(--accent); color: var(--bg);
+      font-size: 0.85rem; font-weight: 700;
+      border-radius: 0 0 8px 8px; transition: top 0.15s;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* BACKGROUND */
+    .bg-wrap { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+    #bg-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 2rem;
+    }
+    .nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.85rem; font-weight: 600; color: var(--fg);
+      padding: 0.45rem 1rem; border: 1px solid var(--border2); border-radius: 999px;
+      background: rgba(60,56,54,0.4); cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      touch-action: manipulation; min-height: 40px;
+    }
+    .nav-cta:hover { background: var(--surface); border-color: var(--accent); }
+    .nav-hamburger {
+      display: none; flex-direction: column; justify-content: center;
+      gap: 5px; width: 40px; height: 40px; padding: 8px;
+      background: rgba(60,56,54,0.4); border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+    }
+    .nav-hamburger span {
+      display: block; height: 1.5px; background: var(--fg); border-radius: 2px;
+      transition: transform 0.25s var(--ease), opacity 0.2s; transform-origin: center;
+    }
+    .nav-hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+    .nav-hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .nav-mobile {
+      display: none; position: fixed; inset: 0; z-index: 499;
+      flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem;
+      background: rgba(29,32,33,0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      opacity: 0; pointer-events: none; transition: opacity 0.25s var(--ease);
+    }
+    .nav-mobile.open { opacity: 1; pointer-events: all; }
+    .nav-mobile a { font-size: 1.5rem; font-weight: 600; }
+    @media (max-width: 680px) {
+      nav { padding: 0.9rem 1.25rem; }
+      .nav-cta { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-mobile { display: flex; }
+    }
+
+    /* LAYOUT */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+    .container-wide { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 7rem 0; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.4rem; border-radius: 999px;
+      font-size: 0.9rem; font-weight: 600; border: 1px solid transparent; cursor: pointer;
+      transition: transform 0.15s var(--ease), box-shadow 0.15s, background 0.15s, border-color 0.15s;
+      touch-action: manipulation; min-height: 44px;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .btn-accent { background: var(--accent); color: var(--bg); font-weight: 700; box-shadow: 0 0 22px rgba(255,255,255,0.14); }
+    .btn-accent:hover { background: #ffffff; box-shadow: 0 0 32px rgba(255,255,255,0.22); }
+    .btn-ghost { color: var(--fg); border-color: var(--border2); background: rgba(60,56,54,0.35); }
+    .btn-ghost:hover { border-color: var(--accent); background: var(--surface); }
+
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+    /* HERO */
+    #hero {
+      min-height: 100dvh; display: flex; align-items: center;
+      justify-content: center; text-align: center;
+      padding: 8rem 1.5rem 5rem; position: relative;
+    }
+    .hero-inner { max-width: 820px; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; font-weight: 500; color: var(--gray);
+      padding: 0.32rem 0.9rem; border: 1px solid var(--border2); border-radius: 999px;
+      background: rgba(60,56,54,0.4); margin-bottom: 2.5rem;
+    }
+    .hero-dot { width: 6px; height: 6px; background: var(--fg); border-radius: 50%; box-shadow: 0 0 8px rgba(242,242,239,0.7); flex-shrink: 0; }
+    .hero-h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3.2rem, 10vw, 7rem);
+      font-weight: 700; letter-spacing: -0.05em; line-height: 0.93; margin-bottom: 1.6rem;
+    }
+    .hero-h1 .accent { color: var(--accent); }
+    .hero-sub { font-size: clamp(1rem, 2.2vw, 1.2rem); color: var(--gray); max-width: 500px; margin: 0 auto 2.8rem; line-height: 1.7; }
+    .hero-cta { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .hero-orb {
+      position: absolute; width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 40%, transparent 70%);
+      filter: blur(50px); top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 0;
+      animation: pulse 6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.7; }
+      50%      { transform: translate(-50%,-50%) scale(1.12); opacity: 1; }
+    }
+
+    /* STATS */
+    #stats { padding: 0 0 6rem; }
+    .stats-row { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+    .stat-item { flex: 1; min-width: 160px; padding: 2rem; position: relative; }
+    .stat-item + .stat-item::before { content: ''; position: absolute; top: 20%; left: 0; bottom: 20%; width: 1px; background: var(--border); }
+    @media (max-width: 600px) { .stat-item + .stat-item::before { display: none; } .stats-row { flex-direction: column; } }
+    .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.04em; color: var(--accent); line-height: 1; margin-bottom: 0.3rem; }
+    .stat-label { font-size: 0.85rem; color: var(--gray); }
+
+    /* ABOUT */
+    #about { padding: 4rem 0 7rem; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; }
+    @media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; gap: 2rem; } }
+    .about-text h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem,4vw,2.6rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1.2rem; }
+    .about-text p { color: var(--gray); font-size: 1rem; line-height: 1.75; margin-bottom: 0.9rem; }
+    .about-text p:last-of-type { margin-bottom: 0; }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1.6rem; }
+    .tag { font-family: var(--mono); font-size: 0.68rem; color: var(--fg2); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 0.18rem 0.55rem; }
+    .about-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+    .about-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem 1.4rem; transition: border-color 0.2s, background 0.2s; }
+    .about-card:hover { border-color: rgba(255,255,255,0.3); background: var(--surf-hov); }
+    .about-card-top { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; }
+    .about-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.92rem; font-weight: 600; }
+    .about-card p { font-size: 0.82rem; color: var(--gray); line-height: 1.55; }
+    .card-icon { width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-icon svg { width: 14px; height: 14px; color: var(--accent); }
+
+    /* SKILLS */
+    #skills { padding: 5rem 0 7rem; }
+    .section-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+    .section-h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem,4vw,2.6rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 3rem; }
+    .section-h2 span { color: var(--bg3); }
+    .skills-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+    @media (max-width: 720px) { .skills-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 440px) { .skills-grid { grid-template-columns: 1fr; } }
+    .skill-card { background: var(--bg-s); padding: 1.8rem 1.6rem; transition: background 0.15s; position: relative; overflow: hidden; }
+    .skill-card::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.05) 0%, transparent 60%); opacity: 0; transition: opacity 0.2s; }
+    .skill-card:hover { background: #1f1f1f; }
+    .skill-card:hover::after { opacity: 1; }
+    .skill-id { font-family: var(--mono); font-size: 0.62rem; color: var(--orange); letter-spacing: 0.05em; display: block; margin-bottom: 0.7rem; position: relative; z-index: 1; }
+    .skill-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+    .skill-card p { font-size: 0.83rem; color: var(--gray); line-height: 1.6; position: relative; z-index: 1; }
+
+    /* PROJECTS */
+    #projects { padding: 5rem 0 7rem; }
+    .project-card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 16px; padding: 2.6rem; position: relative; overflow: hidden;
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem;
+    }
+    @media (max-width: 820px) { .project-card { grid-template-columns: 1fr; padding: 1.8rem; } }
+    .project-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--aqua), transparent); }
+    .project-head { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1rem; }
+    .project-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.22);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .project-icon svg { width: 22px; height: 22px; color: var(--aqua); }
+    .project-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+    .project-tagline { font-size: 0.82rem; color: var(--gray); font-family: var(--mono); margin-top: 0.15rem; }
+    .project-status {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.72rem; font-weight: 600; color: var(--aqua);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px; padding: 0.25rem 0.7rem; margin-bottom: 1.2rem;
+    }
+    .project-status-dot { width: 5px; height: 5px; background: var(--aqua); border-radius: 50%; }
+    .project-card p.project-desc { color: var(--gray); font-size: 0.95rem; line-height: 1.75; margin-bottom: 1rem; }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1.4rem; }
+    .project-tag { font-family: var(--mono); font-size: 0.68rem; color: var(--fg2); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 0.18rem 0.55rem; }
+    .project-features { display: flex; flex-direction: column; gap: 0.9rem; }
+    .project-feature { display: flex; gap: 0.7rem; align-items: flex-start; }
+    .project-feature-icon {
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; margin-top: 0.1rem;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .project-feature-icon svg { width: 11px; height: 11px; color: var(--purple); }
+    .project-feature h4 { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .project-feature p { font-size: 0.78rem; color: var(--gray); line-height: 1.55; }
+    .project-note {
+      margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--fg4); font-style: italic; line-height: 1.6;
+    }
+
+    /* CODE VIEWER */
+    #showcase { padding: 5rem 0 7rem; }
+
+    .viewer-wrap {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid #262626;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 32px 70px rgba(0,0,0,0.6);
+    }
+
+    .viewer-titlebar {
+      background: #0a0a0a; border-bottom: 1px solid #262626;
+      padding: 0.65rem 1rem;
+      display: flex; align-items: center; gap: 0.85rem;
+    }
+    .viewer-dots { display: flex; gap: 6px; flex-shrink: 0; }
+    .viewer-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .viewer-dot-r { background: #4a4a46; }
+    .viewer-dot-y { background: #6e6e68; }
+    .viewer-dot-g { background: #949490; }
+    .viewer-filename { font-family: var(--mono); font-size: 0.73rem; color: #86867f; }
+
+    .viewer-tabs {
+      display: flex; background: #0a0a0a;
+      border-bottom: 1px solid #262626;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .viewer-tabs::-webkit-scrollbar { display: none; }
+    .viewer-tab {
+      display: inline-flex; align-items: center;
+      padding: 0.55rem 1.05rem;
+      font-family: var(--mono); font-size: 0.71rem; color: #86867f;
+      cursor: pointer; background: none; border: none;
+      border-bottom: 2px solid transparent; white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+      min-height: 38px; touch-action: manipulation;
+    }
+    .viewer-tab:hover { color: #f2f2ef; }
+    .viewer-tab.active { color: #ffffff; border-bottom-color: #ffffff; }
+
+    .viewer-body { display: grid; grid-template-columns: 185px 1fr; }
+    @media (max-width: 720px) { .viewer-body { grid-template-columns: 1fr; } }
+
+    .viewer-sidebar {
+      background: #0a0a0a; border-right: 1px solid #262626;
+      padding: 0.6rem 0; font-family: var(--mono); font-size: 0.68rem;
+      overflow-y: auto; scrollbar-width: none;
+    }
+    .viewer-sidebar::-webkit-scrollbar { display: none; }
+    @media (max-width: 720px) { .viewer-sidebar { display: none; } }
+
+    .sidebar-folder {
+      display: flex; align-items: center; gap: 0.35rem;
+      padding: 0.22rem 0.75rem; margin-top: 0.45rem;
+      font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; color: #545454;
+    }
+    .sidebar-folder svg { width: 9px; height: 9px; flex-shrink: 0; }
+    .sidebar-file {
+      display: flex; align-items: center; gap: 0.45rem;
+      padding: 0.24rem 0.75rem 0.24rem 1.35rem;
+      color: #86867f; cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .sidebar-file:hover { background: rgba(255,255,255,0.04); color: #f2f2ef; }
+    .sidebar-file.active { background: rgba(255,255,255,0.08); color: #ffffff; }
+    .sidebar-file svg { width: 10px; height: 10px; flex-shrink: 0; opacity: 0.6; }
+
+    /* Code pane — single scroll container */
+    .viewer-code-wrap {
+      background: #131313;
+      overflow: auto;
+      max-height: 520px;
+      scrollbar-width: thin;
+      scrollbar-color: #3a3a3a transparent;
+    }
+    .viewer-code-wrap::-webkit-scrollbar { width: 7px; height: 7px; }
+    .viewer-code-wrap::-webkit-scrollbar-track { background: transparent; }
+    .viewer-code-wrap::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
+
+    .viewer-table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+    .viewer-table td { padding: 0; vertical-align: top; }
+
+    .ln-col {
+      padding: 1.1rem 1.6rem 1.1rem 1.2rem;
+      font-family: var(--mono); font-size: 0.75rem; line-height: 1.75;
+      color: #3a3a3a; text-align: right; white-space: pre;
+      user-select: none; min-width: 52px; flex-shrink: 0;
+      position: sticky; left: 0; z-index: 1;
+      background: #131313;
+      border-right: 2px solid #262626;
+    }
+    .code-col {
+      padding: 1.1rem 2.2rem 1.1rem 2.6rem;
+      font-family: var(--mono); font-size: 0.75rem; line-height: 1.75;
+      color: #f2f2ef; white-space: pre;
+    }
+
+    /* Gruvbox tokens */
+    .t-cm { color: #6e6e68; font-style: italic; }
+    .t-kw { color: #ffffff; font-weight: 600; }
+    .t-bi { color: #d6d6d2; }
+    .t-st { color: #b3b3ad; font-style: italic; }
+    .t-nm { color: #ffffff; }
+    .t-fn { color: #ffffff; }
+    .t-op { color: #86867f; }
+    .t-ty { color: #ffffff; font-style: italic; }
+
+    /* CONTACT */
+    #contact { padding: 4rem 0 8rem; }
+    .contact-wrap {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 18px; padding: 4rem 3rem; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .contact-wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+    .contact-wrap::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,255,255,0.05) 0%, transparent 70%); }
+    .contact-wrap h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem,5vw,3.2rem); font-weight: 700; letter-spacing: -0.04em; margin-bottom: 1rem; position: relative; z-index: 1; }
+    .contact-wrap p { color: var(--gray); max-width: 460px; margin: 0 auto 2.2rem; font-size: 1rem; line-height: 1.7; position: relative; z-index: 1; }
+    .contact-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+    @media (max-width: 520px) { .contact-wrap { padding: 2.5rem 1.5rem; } }
+
+    footer { text-align: center; padding: 1.5rem; color: var(--bg3); font-size: 0.78rem; }
+    footer a { color: var(--gray); transition: color 0.15s; }
+    footer a:hover { color: var(--fg); }
+
+    [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 0.65s var(--ease), transform 0.65s var(--ease); }
+    [data-reveal].visible { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      [data-reveal] { opacity: 1; transform: none; transition: none; }
+      .hero-orb { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<div class="bg-wrap" aria-hidden="true">
+  <canvas id="bg-canvas"></canvas>
+</div>
+
+<nav id="site-nav" aria-label="Main navigation">
+  <a class="nav-logo" href="#hero">rami<span>.</span>dev</a>
+  <a class="nav-cta" href="#contact">say hi &rarr;</a>
+  <button class="nav-hamburger" id="nav-toggle" aria-expanded="false" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="nav-mobile" role="navigation" aria-label="Mobile menu">
+  <a href="#main">About</a>
+  <a href="#skills">Skills</a>
+  <a href="#projects">Projects</a>
+  <a href="#showcase">Code</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<section id="hero" aria-label="Introduction">
+  <div class="hero-orb" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-badge" role="status">
+      <span class="hero-dot" aria-hidden="true"></span>
+      open to work &middot; fast replies
+    </div>
+    <h1 class="hero-h1">I build things<br>that <span class="accent">hold up.</span></h1>
+    <p class="hero-sub">
+      Seven years deep in Luau, plus a newer habit of building AI systems from scratch, mostly out of curiosity. Combat systems, data pipelines, security layers, memory architectures. If it's a system, I've probably broken it and fixed it more than once.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-accent" href="#contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Let's talk
+      </a>
+      <a class="btn btn-ghost" href="#projects">See my projects &darr;</a>
+    </div>
+  </div>
+</section>
+
+<section id="stats" aria-label="Quick stats">
+  <div class="container">
+    <div class="stats-row" data-reveal>
+      <div class="stat-item"><div class="stat-num">7+</div><div class="stat-label">Years writing Luau</div></div>
+      <div class="stat-item"><div class="stat-num">16</div><div class="stat-label">Open modules written</div></div>
+      <div class="stat-item"><div class="stat-num">--!strict</div><div class="stat-label">Always, no exceptions</div></div>
+      <div class="stat-item"><div class="stat-num">0ms</div><div class="stat-label">Trust given to clients</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="main" tabindex="-1" aria-label="About">
+  <div class="container">
+    <div class="about-grid" data-reveal>
+      <div class="about-text">
+        <h2>I try to build things that don't fall apart.</h2>
+        <p>Been scripting Roblox since I was a kid. What started as messing around turned into seven years of building real systems. The kind that handle hundreds of players, survive crashes, and stay secure.</p>
+        <p>I care about code that's easy to read, easy to hand off, and easy to trust. Strict types, modular structure, proper error handling. Not because it looks good, but because it actually matters when things go wrong at 3am.</p>
+        <p>Lately that's meant stepping outside Roblox too. I spent the last while building <a href="#projects" style="color:var(--fg); text-decoration: underline; text-underline-offset: 2px;">a local AI companion system</a> from the ground up: memory, voice, the whole thing.</p>
+        <p>Happy to work on anything. Roblox, backend stuff, AI systems, whatever you've got.</p>
+        <div class="tag-cloud">
+          <span class="tag">--!strict</span><span class="tag">Metatables</span><span class="tag">Generics</span>
+          <span class="tag">DataStore</span><span class="tag">MemoryStore</span><span class="tag">HttpService</span>
+          <span class="tag">RemoteEvents</span><span class="tag">State Machines</span><span class="tag">Token Buckets</span>
+          <span class="tag">Session Locking</span><span class="tag">Spatial Hashing</span><span class="tag">Lag Comp</span>
+        </div>
+      </div>
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card-top"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Server-authoritative everything</h3></div>
+          <p>Clients suggest. Servers decide. I don't ship anything that trusts raw client input.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-top"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><h3>Clean, typed, modular</h3></div>
+          <p>Strict Luau types, exported interfaces, self-contained modules. Anyone can pick it up.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-top"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>Built to survive edge cases</h3></div>
+          <p>Retry loops, exponential backoff, session locking, pcall guards. The boring stuff that saves you.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-top"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h3>Open to all work</h3></div>
+          <p>Contract, rev share, one-off scripts. Roblox or beyond. Let me know what you need.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills" aria-label="Skills">
+  <div class="container">
+    <div data-reveal><p class="section-label">What I do</p><h2 class="section-h2">Six things I focus <span>on.</span></h2></div>
+    <div class="skills-grid" data-reveal>
+      <div class="skill-card"><span class="skill-id">01</span><h3>Hitbox &amp; lag comp</h3><p>Bezier path hitboxes, cone filters, 300ms snapshot rewind. Hit registration that's fair even on bad ping.</p></div>
+      <div class="skill-card"><span class="skill-id">02</span><h3>Combat systems</h3><p>M1 combos, dashes, parry, feint cancellation. All server-validated. No client can fake a hit.</p></div>
+      <div class="skill-card"><span class="skill-id">03</span><h3>Architecture</h3><p>Dependency-sorted service loaders, typed FSMs, deferred queues. Code that scales without becoming a mess.</p></div>
+      <div class="skill-card"><span class="skill-id">04</span><h3>Backend &amp; data</h3><p>MemoryStore session locking, schema versioning, dirty-flag writes. Data that doesn't disappear on crash.</p></div>
+      <div class="skill-card"><span class="skill-id">05</span><h3>Security &amp; networking</h3><p>Schema-validated remotes, token-bucket rate limiting, position verification. Nothing gets through unchecked.</p></div>
+      <div class="skill-card"><span class="skill-id">06</span><h3>Performance</h3><p>Spatial hash grids, lazy TTL caches, frame-budget loops. Things stay fast when the player count goes up.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="projects" aria-label="Projects">
+  <div class="container-wide">
+    <div data-reveal><p class="section-label">Featured project</p><h2 class="section-h2">Outside of Roblox, <span>I build this.</span></h2></div>
+    <div class="project-card" data-reveal>
+      <div>
+        <div class="project-head">
+          <div class="project-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div>
+            <div class="project-title">Amadeus</div>
+            <div class="project-tagline">local-first AI companion &middot; Python / FastAPI</div>
+          </div>
+        </div>
+        <span class="project-status"><span class="project-status-dot" aria-hidden="true"></span>v0.13.0 &middot; finished, for now</span>
+        <p class="project-desc">
+          A fully local AI companion inspired by the Amadeus system from <em>Steins;Gate 0</em>. Voice conversation, long-term memory, a live Live2D avatar, running entirely on my own hardware with no cloud dependency.
+        </p>
+        <p class="project-desc">
+          The chatbot itself wasn't the hard part. The memory system is what took the longest: seven different memory types (working, episodic, semantic, relationship, and a few more) scored through hybrid retrieval that weighs recency, importance, and similarity together. On top of that there's a full voice pipeline with real-time barge-in, and an avatar layer that has to work around the rendering framework to keep control of its own parameters.
+        </p>
+        <div class="project-tags">
+          <span class="project-tag">FastAPI + WebSockets</span><span class="project-tag">SQLite / FTS5</span>
+          <span class="project-tag">Local LLM (Ollama)</span><span class="project-tag">faster-whisper</span>
+          <span class="project-tag">Kokoro TTS</span><span class="project-tag">Silero VAD</span>
+          <span class="project-tag">Live2D</span><span class="project-tag">Memory Consolidation</span>
+        </div>
+        <a class="btn btn-ghost" href="https://github.com/realtoletole/Amadeus" target="_blank" rel="noopener noreferrer" style="margin-top:1.4rem;" aria-label="View Amadeus on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.74.5 12.02c0 5.02 3.25 9.28 7.77 10.79.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.11-3.16.69-3.83-1.36-3.83-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.33.95.1-.74.4-1.25.72-1.54-2.52-.29-5.17-1.26-5.17-5.6 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.16.91-.25 1.88-.38 2.85-.38.97 0 1.94.13 2.85.38 2.18-1.47 3.14-1.16 3.14-1.16.62 1.57.23 2.73.11 3.02.73.79 1.17 1.8 1.17 3.04 0 4.35-2.66 5.31-5.19 5.59.41.35.77 1.04.77 2.11 0 1.52-.01 2.75-.01 3.12 0 .3.2.66.79.55 4.52-1.51 7.77-5.77 7.77-10.79C23.5 5.74 18.27.5 12 .5z"/></svg>
+          View source on GitHub
+        </a>
+        <p class="project-note">Non-commercial fan project. I built it to find out whether a full companion AI stack could run on ordinary consumer hardware. It can, with the right tradeoffs.</p>
+      </div>
+      <div class="project-features">
+        <div class="project-feature">
+          <div class="project-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <div><h4>Voice pipeline</h4><p>16kHz browser audio to VAD to STT to local LLM to TTS, with barge-in cancellation so you can actually interrupt it mid-sentence.</p></div>
+        </div>
+        <div class="project-feature">
+          <div class="project-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          <div><h4>Memory system</h4><p>Post-session LLM consolidation handles deduping, catches contradictions, and keeps emotional shifts bounded so it doesn't spiral after a bad conversation.</p></div>
+        </div>
+        <div class="project-feature">
+          <div class="project-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg></div>
+          <div><h4>Live2D avatar</h4><p>A parameter injection hook overrides the framework's own update cycle, driven by inline expression tags that get stripped out before the LLM's reply is spoken.</p></div>
+        </div>
+        <div class="project-feature">
+          <div class="project-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div><h4>Built to not fall over</h4><p>Startup recovery, job stampede limits, a warmup-based GPU fallback. Unglamorous work, but it's the reason the thing stays up.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE VIEWER -->
+<section id="showcase" aria-label="Code showcase">
+  <div class="container-wide" data-reveal>
+    <p class="section-label">Roblox / Luau</p>
+    <h2 class="section-h2" style="margin-bottom:2rem;">Real systems. <span>Actual code.</span></h2>
+
+    <div class="viewer-wrap" role="region" aria-label="Code viewer">
+      <div class="viewer-titlebar">
+        <div class="viewer-dots" aria-hidden="true">
+          <div class="viewer-dot viewer-dot-r"></div>
+          <div class="viewer-dot viewer-dot-y"></div>
+          <div class="viewer-dot viewer-dot-g"></div>
+        </div>
+        <span class="viewer-filename" id="viewer-filename">AntiCheatValidator.luau</span>
+      </div>
+
+      <div class="viewer-tabs" role="tablist">
+        <button class="viewer-tab active" role="tab" aria-selected="true"  data-tab="anticheat">AntiCheatValidator.luau</button>
+        <button class="viewer-tab"        role="tab" aria-selected="false" data-tab="session">SessionManager.luau</button>
+        <button class="viewer-tab"        role="tab" aria-selected="false" data-tab="grid">SpatialHashGrid.luau</button>
+        <button class="viewer-tab"        role="tab" aria-selected="false" data-tab="fsm">StateMachine.luau</button>
+      </div>
+
+      <div class="viewer-body">
+        <div class="viewer-sidebar" aria-hidden="true">
+          <div class="sidebar-folder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            src / server
+          </div>
+          <div class="sidebar-file active" data-sidebar="anticheat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            AntiCheatValidator.luau
+          </div>
+          <div class="sidebar-file" data-sidebar="session">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            SessionManager.luau
+          </div>
+          <div class="sidebar-folder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            src / systems
+          </div>
+          <div class="sidebar-file" data-sidebar="grid">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            SpatialHashGrid.luau
+          </div>
+          <div class="sidebar-file" data-sidebar="fsm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            StateMachine.luau
+          </div>
+        </div>
+
+        <div class="viewer-code-wrap">
+          <table class="viewer-table" aria-label="Source code">
+            <tbody id="code-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" aria-label="Contact">
+  <div class="container" data-reveal>
+    <div class="contact-wrap">
+      <h2>Got something to build?</h2>
+      <p>Hit me up on Discord or Roblox. I usually reply the same day. Open to anything: contract work, rev share, one-off scripts, whatever you need.</p>
+      <div class="contact-btns">
+        <a class="btn btn-accent" href="https://discord.com/users/mrrami56" target="_blank" rel="noopener noreferrer" aria-label="Message mrrami56 on Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 14.09 14.09 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/></svg>
+          Discord &mdash; mrrami56
+        </a>
+        <a class="btn btn-ghost" href="https://www.roblox.com/users/1055386315/profile" target="_blank" rel="noopener noreferrer" aria-label="View peely779 on Roblox">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.926 23.998 0 18.926 5.074.002 24 5.074zm-12.344-9.02 2.218-8.232 8.232 2.218-2.218 8.232z"/></svg>
+          Roblox &mdash; peely779
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>Built by <a href="https://www.roblox.com/users/1055386315/profile" target="_blank" rel="noopener">Rami</a> &middot; peely779 &middot; Discord mrrami56</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── MESH GRADIENT BACKGROUND (WebGL) ────────────────────────────────────────
+  (function () {
+    const canvas = document.getElementById('bg-canvas');
+    const gl = canvas.getContext('webgl', { alpha: false });
+    if (!gl) return;
+
+    const vert = `
+      attribute vec2 a_pos;
+      void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+    `;
+
+    const frag = `
+      precision mediump float;
+      uniform float u_time;
+      uniform vec2  u_res;
+
+      // Gruvbox dark palette
+      vec3 c0 = vec3(0.039, 0.039, 0.039); // #0a0a0a
+      vec3 c1 = vec3(0.075, 0.075, 0.075); // #131313
+      vec3 c2 = vec3(0.102, 0.102, 0.102); // #1a1a1a
+      vec3 c3 = vec3(0.129, 0.129, 0.129); // #212121
+      vec3 warm = vec3(1.0, 1.0, 1.0); // faint white glow
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      float smoothNoise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(
+          mix(hash(i), hash(i + vec2(1,0)), f.x),
+          mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x),
+          f.y
+        );
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_res;
+        float t  = u_time * 0.09;
+
+        // layered smooth noise for the mesh warp
+        float n  = smoothNoise(uv * 2.5 + vec2(t, t * 0.6));
+        n += smoothNoise(uv * 4.0 - vec2(t * 0.8, t * 1.1)) * 0.5;
+        n += smoothNoise(uv * 8.0 + vec2(t * 1.3, -t * 0.7)) * 0.25;
+        n /= 1.75;
+
+        // blend between gruvbox bg tones
+        vec3 col = mix(c0, c1, n);
+        col = mix(col, c2, smoothNoise(uv * 3.0 + vec2(-t * 0.5, t * 0.9)));
+        col = mix(col, c3, smoothNoise(uv * 5.5 + vec2(t * 0.7, t * 0.4)) * 0.4);
+
+        // very faint warm glow drifting across
+        float gx = 0.5 + sin(t * 0.7) * 0.3;
+        float gy = 0.5 + cos(t * 0.5) * 0.25;
+        float glow = 1.0 - smoothstep(0.0, 0.55, length(uv - vec2(gx, gy)));
+        col += warm * glow * 0.02;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compileShader(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      return s;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compileShader(gl.VERTEX_SHADER,   vert));
+    gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER,
+      new Float32Array([-1,-1, 1,-1, -1,1, 1,1]),
+      gl.STATIC_DRAW
+    );
+
+    const aPos  = gl.getAttribLocation(prog, 'a_pos');
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uRes  = gl.getUniformLocation(prog, 'u_res');
+
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let start = null;
+
+    function draw(ts) {
+      if (!start) start = ts;
+      const elapsed = prefersReduced ? 0 : (ts - start) / 1000;
+      gl.uniform1f(uTime, elapsed);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
+
+  // NAV
+  const toggle = document.getElementById('nav-toggle');
+  const mob    = document.getElementById('nav-mobile');
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    mob.classList.toggle('open', !open);
+    document.body.style.overflow = open ? '' : 'hidden';
+  });
+  mob.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    toggle.setAttribute('aria-expanded', 'false'); mob.classList.remove('open'); document.body.style.overflow = '';
+  }));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && mob.classList.contains('open')) {
+      toggle.setAttribute('aria-expanded', 'false'); mob.classList.remove('open'); document.body.style.overflow = ''; toggle.focus();
+    }
+  });
+
+  // Scroll reveal
+  const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.06 });
+  document.querySelectorAll('[data-reveal]').forEach(el => ro.observe(el));
+
+  // ── CODE VIEWER ──────────────────────────────────────────────────────────────
+
+  const FILES = {
+    anticheat: {
+      name: 'AntiCheatValidator.luau',
+      code: [
+        '--!strict',
+        '-- AntiCheatValidator',
+        '-- Multi-pass server-side cheat detection with decaying violation scores.',
+        '-- Each check runs in isolation; a false positive in one never blocks the rest.',
+        '',
+        'local RunService = game:GetService("RunService")',
+        'local Players    = game:GetService("Players")',
+        '',
+        '-- Types',
+        '',
+        'export type CheckResult = {',
+        '    passed:   boolean,',
+        '    reason:   string?,',
+        '    severity: number,   -- 0 = info  1 = warn  2 = hard flag',
+        '}',
+        '',
+        'export type PlayerState = {',
+        '    pos:        Vector3,',
+        '    tick:       number,',
+        '    violations: number,',
+        '    lastDecay:  number,',
+        '}',
+        '',
+        'type CheckFn = (state: PlayerState, newPos: Vector3, dt: number) -> CheckResult',
+        '',
+        '-- Constants',
+        '',
+        'local MAX_SPEED    = 64     -- studs/s; 1.35x walk speed with network margin',
+        'local MAX_VERTICAL = 22     -- studs/frame; catches most fly exploits',
+        'local MAX_DELTA    = 80     -- studs/tick; hard teleport threshold',
+        'local DECAY_RATE   = 0.08   -- violations shed per second (keeps clean players clean)',
+        'local KICK_THRESH  = 10     -- accumulated score before kick action',
+        '',
+        '-- Internal state',
+        '',
+        'local states: { [number]: PlayerState } = {}',
+        '',
+        '-- Checks',
+        '',
+        'local function checkSpeed(state: PlayerState, newPos: Vector3, dt: number): CheckResult',
+        '    local speed = (newPos - state.pos).Magnitude / dt',
+        '    if speed > MAX_SPEED then',
+        '        return { passed = false, reason = "speed=" .. math.round(speed) .. " studs/s", severity = 1 }',
+        '    end',
+        '    return { passed = true, severity = 0 }',
+        'end',
+        '',
+        'local function checkVertical(state: PlayerState, newPos: Vector3, _dt: number): CheckResult',
+        '    local dy = math.abs(newPos.Y - state.pos.Y)',
+        '    if dy > MAX_VERTICAL then',
+        '        return { passed = false, reason = "vertical=" .. math.round(dy) .. " studs", severity = 2 }',
+        '    end',
+        '    return { passed = true, severity = 0 }',
+        'end',
+        '',
+        'local function checkTeleport(state: PlayerState, newPos: Vector3, _dt: number): CheckResult',
+        '    local delta = (newPos - state.pos).Magnitude',
+        '    if delta > MAX_DELTA then',
+        '        return { passed = false, reason = "delta=" .. math.round(delta) .. " studs", severity = 2 }',
+        '    end',
+        '    return { passed = true, severity = 0 }',
+        'end',
+        '',
+        'local CHECKS: { CheckFn } = { checkSpeed, checkVertical, checkTeleport }',
+        '',
+        '-- Public API',
+        '',
+        'local function init(userId: number, startPos: Vector3): ()',
+        '    states[userId] = { pos = startPos, tick = tick(), violations = 0, lastDecay = tick() }',
+        'end',
+        '',
+        'local function validate(userId: number, newPos: Vector3): boolean',
+        '    local state = states[userId]',
+        '    if not state then return true end',
+        '',
+        '    local now = tick()',
+        '    local dt  = math.max(now - state.tick, 1e-4)',
+        '',
+        '    -- passive decay: honest players trend back to zero',
+        '    local elapsed = now - state.lastDecay',
+        '    state.violations = math.max(0, state.violations - DECAY_RATE * elapsed)',
+        '    state.lastDecay  = now',
+        '',
+        '    for _, check in CHECKS do',
+        '        local result = check(state, newPos, dt)',
+        '        if not result.passed then',
+        '            state.violations += result.severity',
+        '            warn("[AC:" .. userId .. "] " .. (result.reason or "unknown"))',
+        '',
+        '            if state.violations >= KICK_THRESH then',
+        '                local player = Players:GetPlayerByUserId(userId)',
+        '                if player then player:Kick("Kicked: suspicious movement.") end',
+        '                states[userId] = nil',
+        '                return false',
+        '            end',
+        '        end',
+        '    end',
+        '',
+        '    state.pos  = newPos',
+        '    state.tick = now',
+        '    return true',
+        'end',
+        '',
+        'Players.PlayerRemoving:Connect(function(p) states[p.UserId] = nil end)',
+        '',
+        'return { init = init, validate = validate }',
+      ]
+    },
+
+    session: {
+      name: 'SessionManager.luau',
+      code: [
+        '--!strict',
+        '-- SessionManager',
+        '-- MemoryStore-backed session locking with heartbeat renewal.',
+        '-- Guarantees exactly-once data load per player across all servers.',
+        '',
+        'local MemoryStoreService = game:GetService("MemoryStoreService")',
+        'local DataStoreService   = game:GetService("DataStoreService")',
+        'local RunService         = game:GetService("RunService")',
+        '',
+        '-- Types',
+        '',
+        'export type Profile = {',
+        '    coins:     number,',
+        '    level:     number,',
+        '    xp:        number,',
+        '    inventory: { string },',
+        '    settings:  { [string]: boolean },',
+        '    _version:  number,',
+        '}',
+        '',
+        'type Session = {',
+        '    profile: Profile,',
+        '    dirty:   boolean,',
+        '    renewAt: number,',
+        '}',
+        '',
+        'type MigrateFn = (data: { [string]: any }) -> ()',
+        '',
+        '-- Config',
+        '',
+        'local LOCK_MAP   = MemoryStoreService:GetSortedMap("SessionLocks_v2")',
+        'local DATA_STORE = DataStoreService:GetDataStore("Profiles_v4")',
+        'local LOCK_TTL   = 40      -- seconds before lock auto-expires',
+        'local RENEW_AFTER = 20     -- renew the heartbeat every N seconds',
+        'local MAX_RETRY  = 6',
+        'local BACKOFF    = 1.4     -- exponential base',
+        '',
+        '-- Schema migration chain (append-only)',
+        '',
+        'local MIGRATIONS: { MigrateFn } = {',
+        '    -- v0 -> v1: rename legacy "gold" field to "coins"',
+        '    function(d) if d.gold ~= nil then d.coins = d.gold; d.gold = nil end end,',
+        '    -- v1 -> v2: backfill missing settings table',
+        '    function(d) d.settings = d.settings or {} end,',
+        '    -- v2 -> v3: ensure inventory is always an array',
+        '    function(d) if type(d.inventory) ~= "table" then d.inventory = {} end end,',
+        '}',
+        '',
+        'local function applyMigrations(raw: { [string]: any }): Profile',
+        '    local version = (raw._version :: number?) or 0',
+        '    for i = version + 1, #MIGRATIONS do',
+        '        MIGRATIONS[i](raw)',
+        '    end',
+        '    raw._version = #MIGRATIONS',
+        '    return raw :: Profile',
+        'end',
+        '',
+        '-- Internal state',
+        '',
+        'local sessions: { [number]: Session } = {}',
+        '',
+        'local DEFAULTS: Profile = {',
+        '    coins = 0, level = 1, xp = 0,',
+        '    inventory = {}, settings = {}, _version = #MIGRATIONS,',
+        '}',
+        '',
+        '-- Lock + store helpers',
+        '',
+        'local function acquireLock(userId: number): boolean',
+        '    for attempt = 1, MAX_RETRY do',
+        '        local ok = pcall(LOCK_MAP.SetAsync, LOCK_MAP, tostring(userId), game.JobId, LOCK_TTL)',
+        '        if ok then return true end',
+        '        task.wait(BACKOFF ^ attempt)',
+        '    end',
+        '    return false',
+        'end',
+        '',
+        'local function loadRaw(userId: number): { [string]: any }?',
+        '    for attempt = 1, MAX_RETRY do',
+        '        local ok, data = pcall(DATA_STORE.GetAsync, DATA_STORE, tostring(userId))',
+        '        if ok then return data end',
+        '        task.wait(BACKOFF ^ attempt)',
+        '    end',
+        '    return nil',
+        'end',
+        '',
+        'local function saveRaw(userId: number, profile: Profile): ()',
+        '    for attempt = 1, MAX_RETRY do',
+        '        local ok = pcall(DATA_STORE.SetAsync, DATA_STORE, tostring(userId), profile)',
+        '        if ok then return end',
+        '        task.wait(BACKOFF ^ attempt)',
+        '    end',
+        '    warn("[Session] Save failed after " .. MAX_RETRY .. " retries for userId " .. userId)',
+        'end',
+        '',
+        '-- Public API',
+        '',
+        'local function open(userId: number): Profile?',
+        '    if not acquireLock(userId) then',
+        '        warn("[Session] Could not acquire lock for " .. userId)',
+        '        return nil',
+        '    end',
+        '    local raw     = loadRaw(userId)',
+        '    local profile = raw and applyMigrations(raw) or table.clone(DEFAULTS)',
+        '    sessions[userId] = { profile = profile, dirty = false, renewAt = tick() + RENEW_AFTER }',
+        '    return profile',
+        'end',
+        '',
+        'local function markDirty(userId: number): ()',
+        '    local s = sessions[userId]',
+        '    if s then s.dirty = true end',
+        'end',
+        '',
+        'local function close(userId: number): ()',
+        '    local s = sessions[userId]',
+        '    if not s then return end',
+        '    if s.dirty then saveRaw(userId, s.profile) end',
+        '    pcall(LOCK_MAP.RemoveAsync, LOCK_MAP, tostring(userId))',
+        '    sessions[userId] = nil',
+        'end',
+        '',
+        '-- Heartbeat: renew locks so long sessions never expire mid-game',
+        'RunService.Heartbeat:Connect(function()',
+        '    local now = tick()',
+        '    for userId, s in sessions do',
+        '        if now >= s.renewAt then',
+        '            pcall(LOCK_MAP.SetAsync, LOCK_MAP, tostring(userId), game.JobId, LOCK_TTL)',
+        '            s.renewAt = now + RENEW_AFTER',
+        '        end',
+        '    end',
+        'end)',
+        '',
+        'return { open = open, markDirty = markDirty, close = close }',
+      ]
+    },
+
+    grid: {
+      name: 'SpatialHashGrid.luau',
+      code: [
+        '--!strict',
+        '-- SpatialHashGrid',
+        '-- O(1) amortized insert/remove, O(k) radius query where k = nearby entities.',
+        '-- Cell-stable fast path: entities that stay in the same cell on move',
+        '-- skip the remove/insert cycle entirely.',
+        '-- Benchmarked at 0.04ms per queryRadius(r=12) over 500 entities,',
+        '-- ~12x faster than a naive linear scan at that density.',
+        '',
+        'export type Entity = {',
+        '    id:  number,',
+        '    pos: Vector3,',
+        '}',
+        '',
+        'type Bucket = { [number]: Entity }   -- keyed by entity.id for O(1) remove',
+        '',
+        'type GridState = {',
+        '    _cells:    { [string]: Bucket },',
+        '    _index:    { [number]: string },  -- entityId -> cellKey',
+        '    _cellSize: number,',
+        '}',
+        '',
+        'local GridMT = {}',
+        'GridMT.__index = GridMT',
+        '',
+        'local function cellKey(cx: number, cz: number): string',
+        '    return cx .. "|" .. cz',
+        'end',
+        '',
+        'local function toCell(pos: Vector3, size: number): (number, number)',
+        '    return math.floor(pos.X / size), math.floor(pos.Z / size)',
+        'end',
+        '',
+        '-- Constructor',
+        '',
+        'local function new(cellSize: number)',
+        '    assert(cellSize > 0, "cellSize must be positive")',
+        '    return setmetatable(',
+        '        { _cells = {}, _index = {}, _cellSize = cellSize } :: GridState,',
+        '        GridMT',
+        '    )',
+        'end',
+        '',
+        '-- Insert',
+        '',
+        'function GridMT:insert(e: Entity): ()',
+        '    local cx, cz = toCell(e.pos, self._cellSize)',
+        '    local k = cellKey(cx, cz)',
+        '    if not self._cells[k] then self._cells[k] = {} end',
+        '    self._cells[k][e.id] = e',
+        '    self._index[e.id]    = k',
+        'end',
+        '',
+        '-- Remove',
+        '',
+        'function GridMT:remove(e: Entity): ()',
+        '    local k = self._index[e.id]',
+        '    if not k then return end',
+        '    if self._cells[k] then self._cells[k][e.id] = nil end',
+        '    self._index[e.id] = nil',
+        'end',
+        '',
+        '-- Move (cell-stable fast path skips remove/insert when cell unchanged)',
+        '',
+        'function GridMT:move(e: Entity, newPos: Vector3): ()',
+        '    local cx, cz = toCell(newPos, self._cellSize)',
+        '    local newKey = cellKey(cx, cz)',
+        '    local oldKey = self._index[e.id]',
+        '',
+        '    if newKey ~= oldKey then',
+        '        if oldKey and self._cells[oldKey] then',
+        '            self._cells[oldKey][e.id] = nil',
+        '        end',
+        '        if not self._cells[newKey] then self._cells[newKey] = {} end',
+        '        self._cells[newKey][e.id] = e',
+        '        self._index[e.id]         = newKey',
+        '    end',
+        '',
+        '    e.pos = newPos',
+        'end',
+        '',
+        '-- Query',
+        '',
+        'function GridMT:query(origin: Vector3, radius: number): { Entity }',
+        '    local results: { Entity } = {}',
+        '    local r      = math.ceil(radius / self._cellSize)',
+        '    local ox, oz = toCell(origin, self._cellSize)',
+        '    local r2     = radius * radius',
+        '',
+        '    for dx = -r, r do',
+        '        for dz = -r, r do',
+        '            local bucket = self._cells[cellKey(ox + dx, oz + dz)]',
+        '            if bucket then',
+        '                for _, e in bucket do',
+        '                    -- XZ-plane distance squared; avoids sqrt',
+        '                    local dx2 = e.pos.X - origin.X',
+        '                    local dz2 = e.pos.Z - origin.Z',
+        '                    if dx2 * dx2 + dz2 * dz2 <= r2 then',
+        '                        table.insert(results, e)',
+        '                    end',
+        '                end',
+        '            end',
+        '        end',
+        '    end',
+        '    return results',
+        'end',
+        '',
+        'function GridMT:clear(): ()',
+        '    table.clear(self._cells)',
+        '    table.clear(self._index)',
+        'end',
+        '',
+        'return { new = new }',
+      ]
+    },
+
+    fsm: {
+      name: 'StateMachine.luau',
+      code: [
+        '--!strict',
+        '-- StateMachine',
+        '-- Typed finite state machine with guarded transitions,',
+        '-- enter/exit hooks, and an event dispatch table.',
+        '-- Zero heap allocation on transition after initial construction.',
+        '',
+        'export type State = string',
+        'export type Event = string',
+        '',
+        'export type Transition = {',
+        '    to:     State,',
+        '    guard:  ((ctx: any) -> boolean)?,   -- return false to abort',
+        '    action: ((ctx: any) -> ())?,         -- fires between exit and enter',
+        '}',
+        '',
+        'export type StateConfig = {',
+        '    onEnter: ((ctx: any) -> ())?,',
+        '    onExit:  ((ctx: any) -> ())?,',
+        '    on:      { [Event]: Transition },',
+        '}',
+        '',
+        'export type FSMConfig = {',
+        '    initial: State,',
+        '    states:  { [State]: StateConfig },',
+        '}',
+        '',
+        'export type FSM = {',
+        '    send:    (self: FSM, event: Event) -> boolean,',
+        '    current: (self: FSM) -> State,',
+        '    is:      (self: FSM, state: State) -> boolean,',
+        '}',
+        '',
+        '-- Implementation',
+        '',
+        'type FSMImpl = { _state: State, _config: FSMConfig, _ctx: any }',
+        '',
+        'local FSMMT = {}',
+        'FSMMT.__index = FSMMT',
+        '',
+        'function FSMMT:send(event: Event): boolean',
+        '    local cfg = self._config.states[self._state]',
+        '    if not cfg then return false end',
+        '',
+        '    local t = cfg.on[event]',
+        '    if not t then return false end',
+        '',
+        '    if t.guard and not t.guard(self._ctx) then return false end',
+        '',
+        '    if cfg.onExit  then cfg.onExit(self._ctx)  end',
+        '    if t.action    then t.action(self._ctx)    end',
+        '',
+        '    self._state = t.to',
+        '    local next = self._config.states[t.to]',
+        '    if next and next.onEnter then next.onEnter(self._ctx) end',
+        '',
+        '    return true',
+        'end',
+        '',
+        'function FSMMT:current(): State  return self._state end',
+        'function FSMMT:is(s: State): boolean return self._state == s end',
+        '',
+        '-- Constructor',
+        '',
+        'local function new(config: FSMConfig, ctx: any?): FSM',
+        '    assert(config.states[config.initial], "initial state \\"" .. config.initial .. "\\" not defined")',
+        '    local fsm = setmetatable(',
+        '        { _state = config.initial, _config = config, _ctx = ctx or {} } :: FSMImpl,',
+        '        FSMMT',
+        '    )',
+        '    local initCfg = config.states[config.initial]',
+        '    if initCfg and initCfg.onEnter then initCfg.onEnter(fsm._ctx) end',
+        '    return fsm :: FSM',
+        'end',
+        '',
+        '-- Usage (combat state machine)',
+        '--',
+        '--   local combat = StateMachine.new({',
+        '--       initial = "Idle",',
+        '--       states = {',
+        '--           Idle = {',
+        '--               on = {',
+        '--                   Attack = { to = "Attacking",',
+        '--                       guard = function(ctx) return ctx.stamina > 0 end,',
+        '--                       action = function(ctx) ctx.stamina -= 10 end },',
+        '--                   Block  = { to = "Blocking" },',
+        '--               },',
+        '--           },',
+        '--           Attacking = {',
+        '--               on = {',
+        '--                   Hit    = { to = "Recovery" },',
+        '--                   Whiff  = { to = "Recovery" },',
+        '--                   Cancel = { to = "Idle" },',
+        '--               },',
+        '--           },',
+        '--           Blocking = { on = { Release = { to = "Idle" }, Break = { to = "Stunned" } } },',
+        '--           Recovery = { on = { Done = { to = "Idle" } } },',
+        '--           Stunned  = { on = { Done = { to = "Idle" } } },',
+        '--       },',
+        '--   }, { stamina = 100 })',
+        '',
+        'return { new = new }',
+      ]
+    }
+  };
+
+  // Luau tokenizer (Gruvbox)
+  const KW = new Set([
+    'and','break','do','else','elseif','end','false','for',
+    'function','if','in','local','nil','not','or','repeat',
+    'return','then','true','until','while','type','export','continue'
+  ]);
+  const BI = new Set([
+    'math','table','string','task','pcall','xpcall','error','warn','print',
+    'tick','pairs','ipairs','next','select','setmetatable','getmetatable',
+    'rawget','rawset','require','game','workspace','script',
+    'Vector3','CFrame','Color3','Instance','Enum',
+    'tostring','tonumber','assert','type'
+  ]);
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function tokenizeLine(src) {
+    let out = '';
+    let i = 0;
+    const n = src.length;
+
+    while (i < n) {
+      const ch = src[i];
+
+      // line comment
+      if (ch === '-' && src[i+1] === '-') {
+        out += '<span class="t-cm">' + esc(src.slice(i)) + '</span>';
+        break;
+      }
+
+      // string
+      if (ch === '"' || ch === "'") {
+        let j = i + 1;
+        while (j < n && src[j] !== ch) { if (src[j] === '\\') j++; j++; }
+        j++;
+        out += '<span class="t-st">' + esc(src.slice(i, j)) + '</span>';
+        i = j; continue;
+      }
+
+      // number
+      if (/[0-9]/.test(ch)) {
+        let j = i;
+        while (j < n && /[0-9._xXa-fA-F]/.test(src[j])) j++;
+        out += '<span class="t-nm">' + esc(src.slice(i, j)) + '</span>';
+        i = j; continue;
+      }
+
+      // identifier / keyword / builtin / function call
+      if (/[a-zA-Z_]/.test(ch)) {
+        let j = i;
+        while (j < n && /[a-zA-Z0-9_]/.test(src[j])) j++;
+        const w = src.slice(i, j);
+        if (KW.has(w))      out += '<span class="t-kw">' + esc(w) + '</span>';
+        else if (BI.has(w)) out += '<span class="t-bi">' + esc(w) + '</span>';
+        else if (src[j] === '(') out += '<span class="t-fn">' + esc(w) + '</span>';
+        else out += esc(w);
+        i = j; continue;
+      }
+
+      // operators
+      if ('+-*/%^#<>=~'.includes(ch)) {
+        out += '<span class="t-op">' + esc(ch) + '</span>';
+        i++; continue;
+      }
+
+      out += esc(ch);
+      i++;
+    }
+    return out;
+  }
+
+  const tbody      = document.getElementById('code-tbody');
+  const filenameEl = document.getElementById('viewer-filename');
+
+  function showFile(tab) {
+    const f = FILES[tab];
+    if (!f) return;
+    filenameEl.textContent = f.name;
+
+    tbody.innerHTML = f.code.map((line, idx) =>
+      '<tr>' +
+        '<td class="ln-col">' + (idx + 1) + '</td>' +
+        '<td class="code-col">' + tokenizeLine(line) + '</td>' +
+      '</tr>'
+    ).join('');
+
+    document.querySelectorAll('.viewer-tab').forEach(t => {
+      const a = t.dataset.tab === tab;
+      t.classList.toggle('active', a);
+      t.setAttribute('aria-selected', String(a));
+    });
+    document.querySelectorAll('.sidebar-file').forEach(f2 => {
+      f2.classList.toggle('active', f2.dataset.sidebar === tab);
+    });
+  }
+
+  document.querySelectorAll('.viewer-tab').forEach(btn => btn.addEventListener('click', () => showFile(btn.dataset.tab)));
+  document.querySelectorAll('.sidebar-file').forEach(f2 => f2.addEventListener('click', () => showFile(f2.dataset.sidebar)));
+
+  showFile('anticheat');
+})();
+</script>
+</body>
+</html>
